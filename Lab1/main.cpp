@@ -46,15 +46,11 @@ static void AddShader(GLuint ShaderProgram, const char* pShaderText, GLenum Shad
     glAttachShader(ShaderProgram, ShaderObj);
 }
 
-GLuint CompileShaders()
+GLuint CompileShaders(const char* vertexShaderPath, const char* fragmentShaderPath)
 {
-	const char* vertexShaderPath = "./vertexshader.txt"; 
-
 	std::ifstream vertexStream(vertexShaderPath);
 	std::string vertexShader((std::istreambuf_iterator<char>(vertexStream)),
 		std::istreambuf_iterator<char>());
-
-	const char* fragmentShaderPath = "./fragmentshader.txt";
 
 	std::ifstream fragmentStream(fragmentShaderPath);
 	std::string fragmentShader((std::istreambuf_iterator<char>(fragmentStream)),
@@ -260,14 +256,20 @@ int mySize(T* list) {
 
 void init()
 {
+	GLfloat allVertices[] = {
+		-1.0f, -1.0f, 0.0f,
+		0.0f, -1.0f, 0.0f,
+		-0.5f, 1.0f, 0.0f,
+		0.0f, -1.0f, 0.0f,
+		1.0f, -1.0f, 0.0f,
+		0.5f, 1.0f, 0.0f
+	};
+
 	// Create 3 vertices that make up a triangle that fits on the viewport 
 	GLfloat vertices[] = {
 			-1.0f, -1.0f, 0.0f,
 			0.0f, -1.0f, 0.0f,
-			-0.5f, 1.0f, 0.0f,
-			0.0f, -1.0f, 0.0f,
-			1.0f, -1.0f, 0.0f,
-			0.5f, 1.0f, 0.0f
+			-0.5f, 1.0f, 0.0f
 	};
 	// Create a color array that identfies the colors of each vertex (format R, G, B, A)
 	GLfloat colors[] = {
@@ -278,6 +280,11 @@ void init()
 			1.0f, 0.0f, 0.0f, 1.0f,
 			0.0f, 0.0f, 1.0f, 1.0f
 	};
+	GLfloat vertices2[] = {
+		0.0f, -1.0f, 0.0f,
+		1.0f, -1.0f, 0.0f,
+		0.5f, 1.0f, 0.0f
+	};
 
 	//getTriangleData();
 
@@ -285,12 +292,16 @@ void init()
 	//int length = mySize<GLfloat*>(triangles);
 
 	// Set up the shaders
-	GLuint shaderProgramID = CompileShaders();
+	GLuint shaderProgramID1 = CompileShaders("./vertexshader.txt", "./fragmentshader.txt");
+	GLuint shaderProgramID2 = CompileShaders("./vertexshader2.txt", "./fragmentshader2.txt");
 	// Put the vertices and colors into a vertex buffer object
 	//generateObjectBuffer(vertices, colors);
 	// Link the current buffer to the shader
 	//linkCurrentBuffertoShader(shaderProgramID);	
-	AddTriangles(vertices, colors, shaderProgramID, 2, 6);
+	AddTriangles(allVertices, colors, shaderProgramID1, 2, 6);
+	
+	//AddTriangles(vertices, colors, shaderProgramID1, 1, 3);
+	//AddTriangles(vertices2, colors, shaderProgramID2, 1, 3);
 }
 
 
