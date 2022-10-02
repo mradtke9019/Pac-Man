@@ -11,11 +11,6 @@
 
 using namespace std;
 
-// Vertex Shader (for convenience, it is defined in the main here, but we will be using text files for shaders in future)
-// Note: Input to this shader is the vertex positions that we specified for the triangle. 
-// Note: gl_Position is a special built-in variable that is supposed to contain the vertex position (in X, Y, Z, W)
-// Since our triangle vertices were specified as vec3, we just set W to 1.0.
-
 
 
 // Shader Functions- click on + to expand
@@ -131,7 +126,7 @@ void linkCurrentBuffertoShader(GLuint shaderProgramID){
 }
 #pragma endregion VBO_FUNCTIONS
 
-void AddTriangles(GLfloat vertices[], GLfloat colors[], GLuint shaderProgramID, int numTriangles, GLuint numVertices) {
+void AddTriangles(GLfloat vertices[], GLuint shaderProgramID, int numTriangles, GLuint numVertices) {
 	// Genderate 1 generic buffer object, called VBO
 	GLuint* VBOs = new GLuint[numTriangles];
 	unsigned int* VAOs = new GLuint[numTriangles];
@@ -151,16 +146,62 @@ void AddTriangles(GLfloat vertices[], GLfloat colors[], GLuint shaderProgramID, 
 		glBufferData(GL_ARRAY_BUFFER, numVertices * 7 * sizeof(GLfloat), NULL, GL_STATIC_DRAW);
 		// if you have more data besides vertices (e.g., vertex colours or normals), use glBufferSubData to tell the buffer when the vertices array ends and when the colors start
 		glBufferSubData(GL_ARRAY_BUFFER, 0, numVertices * 3 * sizeof(GLfloat), vertices);
-		glBufferSubData(GL_ARRAY_BUFFER, numVertices * 3 * sizeof(GLfloat), numVertices * 4 * sizeof(GLfloat), colors);
 
 	}
+
+	int xyzSize = 3;
+	int rgbSize = 3;
+	int stride = sizeof(GLfloat) * xyzSize;// sizeof(GLfloat)* (xyzSize + rgbSize);
+
 	// Have to enable this
-	glEnableVertexAttribArray(positionID);
 	// Tell it where to find the position data in the currently active buffer (at index positionID)
-	glVertexAttribPointer(positionID, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(positionID);
+	glVertexAttribPointer(positionID, xyzSize, GL_FLOAT, GL_FALSE, stride, 0);
+
 	// Similarly, for the color data.
 	glEnableVertexAttribArray(colorID);
-	glVertexAttribPointer(colorID, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(numVertices * 3 * sizeof(GLfloat)));
+	glVertexAttribPointer(colorID, rgbSize, GL_FLOAT, GL_FALSE, stride, BUFFER_OFFSET(numVertices * 3 * sizeof(GLfloat)));
+
+	glUseProgram(shaderProgramID);
+}
+
+void LearnOpenGLTest(GLfloat vertices[], GLuint shaderProgramID, int numTriangles, GLuint numVertices)
+{
+	unsigned int vao;
+	int vaoCount = 1;
+	glGenVertexArrays(vaoCount, &vao);
+	glBindVertexArray(vao);
+
+	// Want 1 vbo for our triangles
+	int vboCount = 1;
+	GLuint vbo;
+	// Create, bind, load
+	glGenBuffers(vboCount, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+	// Mode (GL_ARRAY_BUFFER), 
+	//size - specify the size in bytes of the buffer objects new data,
+	//data - specifies a pointer to the data that will be copied into the buffer,
+	// usage - specify the usage pattern of the data (static, dynamic, stream)
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, numVertices * 3 * sizeof(GLfloat), vertices);
+	//glBufferSubData(GL_ARRAY_BUFFER, numVertices * 3 * sizeof(GLfloat), numVertices * 4 * sizeof(GLfloat), colors);
+	// Find out where our position is placed in the shader
+	GLuint positionID = glGetAttribLocation(shaderProgramID, "vPosition");
+	int totalItemsPerVertex = 3;
+	int stride = totalItemsPerVertex * sizeof(GLfloat);
+	 // Position of shader input
+	// size, how loarge our vertex data is, usually 3 for xyz but can have more
+	// type of data for this attribute ,FLOAT
+	// normalize? determine if we want to normalize our data, usually no
+	// stride - the space in byutes that differentiates data in 1 vertex vs another
+	// offset - where do we start in our vertex data, usually 0 
+	glVertexAttribPointer(positionID, totalItemsPerVertex, GL_FLOAT, GL_FALSE, stride, (void*)0);
+	glEnableVertexAttribArray(positionID); // enable the attribute in the shader
+
+	glBindVertexArray(vao);
+	glUseProgram(shaderProgramID);
+
 }
 
 std::vector<string> split(string text, string delimiter) {
@@ -243,21 +284,22 @@ void display(){
     glutSwapBuffers();
 }
 
-/// <summary>
-/// Returns the size of a list
-/// </summary>
-/// <typeparam name="T"></typeparam>
-/// <param name="list"></param>
-/// <returns></returns>
-template <typename T>
-int mySize(T* list) {
-	return sizeof(list) / sizeof(T);
-}
 
 void init()
 {
+	GLfloat allVerticesWithColor[] = {
+		// x,y,z			r,g,b
+		-1.0f, -1.0f, 0.0f, 1.0, 0.0, 0.0,
+		0.0f, -1.0f, 0.0f, 1.0, 0.0, 0.0,
+		-0.5f, 1.0f, 0.0f, 1.0, 0.0, 0.0,
+		0.0f, -1.0f, 0.0f, 1.0, 0.0, 0.0,
+		1.0f, -1.0f, 0.0f, 1.0, 0.0, 0.0,
+		0.5f, 1.0f, 0.0f, 1.0, 0.0, 0.0,
+	};
+
 	GLfloat allVertices[] = {
-		-1.0f, -1.0f, 0.0f,
+		// x,y,z			
+		- 1.0f, -1.0f, 0.0f,
 		0.0f, -1.0f, 0.0f,
 		-0.5f, 1.0f, 0.0f,
 		0.0f, -1.0f, 0.0f,
@@ -271,15 +313,7 @@ void init()
 			0.0f, -1.0f, 0.0f,
 			-0.5f, 1.0f, 0.0f
 	};
-	// Create a color array that identfies the colors of each vertex (format R, G, B, A)
-	GLfloat colors[] = {
-			0.0f, 1.0f, 0.0f, 1.0f,
-			1.0f, 0.0f, 0.0f, 1.0f,
-			0.0f, 0.0f, 1.0f, 1.0f,
-			0.0f, 1.0f, 0.0f, 1.0f,
-			1.0f, 0.0f, 0.0f, 1.0f,
-			0.0f, 0.0f, 1.0f, 1.0f
-	};
+
 	GLfloat vertices2[] = {
 		0.0f, -1.0f, 0.0f,
 		1.0f, -1.0f, 0.0f,
@@ -293,13 +327,18 @@ void init()
 
 	// Set up the shaders
 	GLuint shaderProgramID1 = CompileShaders("./vertexshader.txt", "./fragmentshader.txt");
-	GLuint shaderProgramID2 = CompileShaders("./vertexshader2.txt", "./fragmentshader2.txt");
+	//GLuint shaderProgramID2 = CompileShaders("./vertexshader2.txt", "./fragmentshader2.txt");
 	// Put the vertices and colors into a vertex buffer object
 	//generateObjectBuffer(vertices, colors);
 	// Link the current buffer to the shader
 	//linkCurrentBuffertoShader(shaderProgramID);	
-	AddTriangles(allVertices, colors, shaderProgramID1, 2, 6);
+	AddTriangles(allVertices, shaderProgramID1, 2, 6);
+	int numTriangles = 2;
+	int vertexCount = numTriangles * 3;
 	
+	//LearnOpenGLTest(vertices, shaderProgramID1, 1, 3);
+	//LearnOpenGLTest(allVertices, shaderProgramID1, numTriangles, vertexCount);
+
 	//AddTriangles(vertices, colors, shaderProgramID1, 1, 3);
 	//AddTriangles(vertices2, colors, shaderProgramID2, 1, 3);
 }
