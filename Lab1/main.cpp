@@ -10,9 +10,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "Shader.cpp"
+#include "Object.cpp"
 
 // Macro for indexing vertex buffer
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
+#define Width 800
+#define Height 600
 
 using namespace std;
 
@@ -51,7 +54,7 @@ void linkCurrentBuffertoShader(GLuint shaderProgramID){
 }
 #pragma endregion VBO_FUNCTIONS
 
-void AddTriangles(GLfloat vertices[], GLuint shaderProgramID, int numTriangles, GLuint numVertices) {
+void AddTriangles(GLfloat vertices[], GLfloat colors[], GLuint shaderProgramID, int numTriangles, GLuint numVertices) {
 	// Genderate 1 generic buffer object, called VBO
 	GLuint* VBOs = new GLuint[numTriangles];
 	unsigned int* VAOs = new GLuint[numTriangles];
@@ -71,7 +74,7 @@ void AddTriangles(GLfloat vertices[], GLuint shaderProgramID, int numTriangles, 
 		glBufferData(GL_ARRAY_BUFFER, numVertices * 7 * sizeof(GLfloat), NULL, GL_DYNAMIC_DRAW);
 		// if you have more data besides vertices (e.g., vertex colours or normals), use glBufferSubData to tell the buffer when the vertices array ends and when the colors start
 		glBufferSubData(GL_ARRAY_BUFFER, 0, numVertices * 3 * sizeof(GLfloat), vertices);
-
+		glBufferSubData(GL_ARRAY_BUFFER, numVertices * 3 * sizeof(GLfloat), numVertices * 4 * sizeof(GLfloat), colors);
 	}
 
 	int xyzSize = 3;
@@ -81,53 +84,15 @@ void AddTriangles(GLfloat vertices[], GLuint shaderProgramID, int numTriangles, 
 	// Have to enable this
 	// Tell it where to find the position data in the currently active buffer (at index positionID)
 	glEnableVertexAttribArray(positionID);
-	glVertexAttribPointer(positionID, xyzSize, GL_FLOAT, GL_FALSE, stride, 0);
+	glVertexAttribPointer(positionID, xyzSize, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * xyzSize, 0);
 
 	// Similarly, for the color data.
 	glEnableVertexAttribArray(colorID);
-	glVertexAttribPointer(colorID, rgbSize, GL_FLOAT, GL_FALSE, stride, BUFFER_OFFSET(numVertices * 3 * sizeof(GLfloat)));
+	glVertexAttribPointer(colorID, rgbSize, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * rgbSize, BUFFER_OFFSET(numVertices * 3 * sizeof(GLfloat)));
 
 	glUseProgram(shaderProgramID);
 }
 
-void LearnOpenGLTest(GLfloat vertices[], GLuint shaderProgramID, int numTriangles, GLuint numVertices)
-{
-	unsigned int vao;
-	int vaoCount = 1;
-	glGenVertexArrays(vaoCount, &vao);
-	glBindVertexArray(vao);
-
-	// Want 1 vbo for our triangles
-	int vboCount = 1;
-	GLuint vbo;
-	// Create, bind, load
-	glGenBuffers(vboCount, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
-	// Mode (GL_ARRAY_BUFFER), 
-	//size - specify the size in bytes of the buffer objects new data,
-	//data - specifies a pointer to the data that will be copied into the buffer,
-	// usage - specify the usage pattern of the data (static, dynamic, stream)
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, numVertices * 3 * sizeof(GLfloat), vertices);
-	//glBufferSubData(GL_ARRAY_BUFFER, numVertices * 3 * sizeof(GLfloat), numVertices * 4 * sizeof(GLfloat), colors);
-	// Find out where our position is placed in the shader
-	GLuint positionID = glGetAttribLocation(shaderProgramID, "vPosition");
-	int totalItemsPerVertex = 3;
-	int stride = totalItemsPerVertex * sizeof(GLfloat);
-	 // Position of shader input
-	// size, how loarge our vertex data is, usually 3 for xyz but can have more
-	// type of data for this attribute ,FLOAT
-	// normalize? determine if we want to normalize our data, usually no
-	// stride - the space in byutes that differentiates data in 1 vertex vs another
-	// offset - where do we start in our vertex data, usually 0 
-	glVertexAttribPointer(positionID, totalItemsPerVertex, GL_FLOAT, GL_FALSE, stride, (void*)0);
-	glEnableVertexAttribArray(positionID); // enable the attribute in the shader
-
-	glBindVertexArray(vao);
-	glUseProgram(shaderProgramID);
-
-}
 
 std::vector<string> split(string text, string delimiter) {
 	vector<string> words{};
@@ -143,73 +108,21 @@ std::vector<string> split(string text, string delimiter) {
 	return words;
 }
 
-GLuint** getTriangleData() {
-
-	const char* file = "./triangles.txt";
-
-	std::ifstream dataStream(file);
-	std::string data((std::istreambuf_iterator<char>(dataStream)),
-		std::istreambuf_iterator<char>());
-
-	std::ifstream ifs(file);
-	std::ifstream filestream(file);
-
-	std::string line;
-	int i = 0;
-	int triangleCount = 0;
-	while (std::getline(ifs, line))
-	{
-		if (i % 3 == 0) 
-		{
-			triangleCount++;
-		}
-		i++;
-	}
-
-	while (std::getline(filestream, line))
-	{
-		std::vector<string> vertexData = split(line, " ");
-		for (const auto& str : vertexData) {
-			cout << str << endl;
-		}
-	}
-
-	GLuint** triangleData = new GLuint * [triangleCount];
-	for (i = 0; i < triangleCount; i++)
-	{
-
-	}
-
-	return NULL;
-}
-
-void CustomOpenGLLearningCode() {
-
-	// Get our vertex buffer objects to store vertex data in gpu
-	unsigned int VBOs[5];
-	glGenBuffers(5, VBOs);
-	float vertices[] = {
-	-0.5f, -0.5f, 0.0f,
-	 0.5f, -0.5f, 0.0f,
-	 0.0f,  0.5f, 0.0f
-	};
-	for (int i = 0; i < 5; i++) {
-		glBindBuffer(GL_ARRAY_BUFFER, VBOs[i]);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	}
-
-}
-
-
 void display(){
 
 	glClear(GL_COLOR_BUFFER_BIT);
 	auto timeValue = glutGet(GLUT_ELAPSED_TIME);
 	int timeLocation = glGetUniformLocation(myShader->GetShaderProgramID(), "time");
 	glUniform1f(timeLocation, timeValue);
+
+	glm::mat4 trans = glm::mat4(1.0f);
+	trans = glm::rotate(trans, glm::radians(timeValue * 1.0f), glm::vec3(0.0, 0.0, 1.0));
+	trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
+	//myShader->SetUniformMatrix4fv("trans", &trans);
+
 	glutPostRedisplay();
 	// NB: Make the call to draw the geometry in the currently activated vertex buffer. This is where the GPU starts to work!
-	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glDrawArrays(GL_TRIANGLES, 0, 24);
     glutSwapBuffers();
 }
 
@@ -218,22 +131,22 @@ void init()
 {
 	GLfloat allVerticesWithColor[] = {
 		// x,y,z			r,g,b
-		-1.0f, -1.0f, 0.0f, 1.0, 0.0, 0.0,
-		0.0f, -1.0f, 0.0f, 1.0, 0.0, 0.0,
-		-0.5f, 1.0f, 0.0f, 1.0, 0.0, 0.0,
-		0.0f, -1.0f, 0.0f, 1.0, 0.0, 0.0,
-		1.0f, -1.0f, 0.0f, 1.0, 0.0, 0.0,
-		0.5f, 1.0f, 0.0f, 1.0, 0.0, 0.0,
+		-1.0f, -1.0f, -1.0f, 1.0, 0.0, 0.0,
+		0.0f, -1.0f, -1.0f, 1.0, 0.0, 0.0,
+		-0.5f, 1.0f, -1.0f, 1.0, 0.0, 0.0,
+		0.0f, -1.0f, -1.0f, 1.0, 0.0, 0.0,
+		1.0f, -1.0f, -1.0f, 1.0, 0.0, 0.0,
+		0.5f, 1.0f, -1.0f, 1.0, 0.0, 0.0,
 	};
 
 	GLfloat allVertices[] = {
 		// x,y,z			
-		- 1.0f, -1.0f, 0.0f,
-		0.0f, -1.0f, 0.0f,
-		-0.5f, 1.0f, 0.0f,
-		0.0f, -1.0f, 0.0f,
-		1.0f, -1.0f, 0.0f,
-		0.5f, 1.0f, 0.0f
+		- 1.0f, -1.0f, -1.0f,
+		0.0f, -1.0f, -1.0f,
+		-0.5f, 1.0f, -1.0f,
+		0.0f, -1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+		0.5f, 1.0f, -1.0f
 	};
 
 	// Create 3 vertices that make up a triangle that fits on the viewport 
@@ -249,6 +162,31 @@ void init()
 		0.5f, 1.0f, 0.0f
 	};
 
+	GLfloat vertexPos[] = {
+		0.0, 2.0, 0.0,  1.0, 0.0, 0.0,  0.0, 0.0, -1.0,
+		0.0, 2.0, 0.0,  1.0, 0.0, 0.0,  0.0, 0.0, 1.0,
+		0.0, 2.0, 0.0,  -1.0, 0.0, 0.0,  0.0, 0.0, -1.0,
+		0.0, 2.0, 0.0,  -1.0, 0.0, 0.0,  0.0, 0.0, 1.0,
+
+		0.0, -2.0, 0.0,  1.0, 0.0, 0.0,  0.0, 0.0, -1.0,
+		0.0, -2.0, 0.0,  1.0, 0.0, 0.0,  0.0, 0.0, 1.0,
+		0.0, -2.0, 0.0,  -1.0, 0.0, 0.0,  0.0, 0.0, -1.0,
+		0.0, -2.0, 0.0,  -1.0, 0.0, 0.0,  0.0, 0.0, 1.0,
+	};
+	GLfloat vertexColors[] = {
+		1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
+			1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
+			1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
+			1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
+			1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
+
+			1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
+			1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
+			1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
+			1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
+			1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
+	};
+
 	//getTriangleData();
 
 
@@ -256,6 +194,7 @@ void init()
 
 	// Set up the shaders
 	myShader = new Shader("./vertexshader.txt", "./fragmentshader.txt", true);
+
 	//shaderProgramID1 = CompileShaders("./vertexshader.txt", "./fragmentshader.txt");
 	//GLuint shaderProgramID2 = CompileShaders("./vertexshader2.txt", "./fragmentshader2.txt");
 	// Put the vertices and colors into a vertex buffer object
@@ -267,7 +206,7 @@ void init()
 	//glUniform1f(time, timeValue);
 
 
-	AddTriangles(allVertices, myShader->GetShaderProgramID(), 2, 6);
+	AddTriangles(vertexPos, vertexColors, myShader->GetShaderProgramID(), 3, 24);
 	int numTriangles = 2;
 	int vertexCount = numTriangles * 3;
 
@@ -275,32 +214,17 @@ void init()
 	myShader->SetUniform1f("time", timeValue);
 	
 
-	glm::mat4x4 MVP;
-	glm::mat4x4 identity;
 
-	int i, j;
-	for (i = 0; i < 4; ++i)
-	{
-		for (j = 0; j < 4; ++j)
-		{
-			if (i == j)
-			{ 
-				identity[i][j] = 1;
-				MVP[i][j] = 1;
-			}
-			else
-			{
-				identity[i][j] = 0;
-				MVP[i][j] = 0;
-			}
-			printf("%f, ", identity[i][j]);
-		}
-		printf("\n");
-	}
-	MVP[0][3] = 0.5;
-	MVP[1][3] = 0.5;
-	MVP[2][3] = 0.5;
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
+
+	// note that we're translating the scene in the reverse direction of where we want to move
+	glm::mat4 view = glm::mat4(1.0f);
+	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+
+
+	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)Width / (float)Height, 0.1f, 100.0f);
 
 	//GLuint MatrixID = glGetUniformLocation(myShader->GetShaderProgramID(), "MVP");
 	//GLuint MatrixIdentity = glGetUniformLocation(myShader->GetShaderProgramID(), "Identity");
@@ -310,8 +234,10 @@ void init()
 	//glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
 	//glUniformMatrix4fv(MatrixIdentity, 1, GL_FALSE, &identity[0][0]);
 
-	myShader->SetUniformMatrix4fv("MVP", &MVP);
-	myShader->SetUniformMatrix4fv("Identity", &identity);
+	myShader->SetUniformMatrix4fv("model", &model);
+	myShader->SetUniformMatrix4fv("view", &view);
+	myShader->SetUniformMatrix4fv("projection", &projection);
+	//myShader->SetUniformMatrix4fv("Identity", &identity);
 
 	//LearnOpenGLTest(vertices, shaderProgramID1, 1, 3);
 	//LearnOpenGLTest(allVertices, shaderProgramID1, numTriangles, vertexCount);
@@ -327,8 +253,8 @@ int main(int argc, char** argv){
 	// Set up the window
 	glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGB);
-    glutInitWindowSize(800, 600);
-    glutCreateWindow("Hello Triangle");
+    glutInitWindowSize(Width, Height);
+    glutCreateWindow("Hello Triangle"); 
 	// Tell glut where the display function is
 	glutDisplayFunc(display);
 

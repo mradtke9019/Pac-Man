@@ -3,11 +3,14 @@
 in vec3 vPosition;
 in vec3 vColor;
 uniform float time;
-uniform mat4 MVP;
-uniform mat4 Identity;
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
+uniform mat4 trans;
+out vec3 color;
 
 void main()                                                              
 {
-	vec4 newPosition = abs(cos(time/500)) * Identity * vec4(vPosition.x, vPosition.y, vPosition.z, 1.0);
-	gl_Position = vec4(newPosition.x, newPosition.y, newPosition.z, 1.0);
+	gl_Position = projection * view * model * vec4(vPosition, 1.0);
+	color = vColor;
 }

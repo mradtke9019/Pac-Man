@@ -9,7 +9,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-
+#pragma once
 class Shader
 {
 private:
@@ -128,22 +128,51 @@ public:
 
     GLuint GetUniformLocation(const char* uniform) 
     {
-        return glGetUniformLocation(ShaderProgramID, uniform);
+        int uniformId = glGetUniformLocation(ShaderProgramID, uniform);
+        if (uniformId < 0) 
+        {
+            fprintf(stderr, "Error finding uniform '%s' in shader program id: '%i'\n", uniform, ShaderProgramID);
+        }
+        return uniformId;
     }
 
     void SetUniform1f(const char* uniform, float value)
     {
+        int uniformId = GetUniformLocation(uniform);
+        if (uniformId < 0)
+        {
+            fprintf(stderr, "Error setting uniform '%s' in shader program id: '%i'\n", uniform, ShaderProgramID);
+        }
         glUniform1f(GetUniformLocation(uniform), value);
     }
 
     GLuint GetUniformMatrix4fv(const char* mat)
     {
-        return glGetUniformLocation(ShaderProgramID, mat);
+        int uniformId = glGetUniformLocation(ShaderProgramID, mat);
+        if (uniformId < 0)
+        {
+            fprintf(stderr, "Error finding uniform matrix '%s' in shader program id: '%i'\n", mat, ShaderProgramID);
+        }
+        return uniformId;
     }
 
-    void SetUniformMatrix4fv(const char* mat, glm::mat4x4* matrix)
+    void SetUniformMatrix44fv(const char* mat, glm::mat4x4* matrix)
     {
-        glUniformMatrix4fv(glGetUniformLocation(ShaderProgramID, mat), 1, GL_FALSE, &matrix[0][0][0]);
-        //glUniformMatrix4fv(glGetUniformLocation(ShaderProgramID, mat), 1, GL_FALSE, &matrix[0][0]);
+        int id = GetUniformMatrix4fv(mat);
+        if (id < 0) {
+            fprintf(stderr, "Unable to set uniform matrix '%s' in shader program id: '%i'\n", mat, ShaderProgramID);
+        }
+        //void glUniformMatrix4fv(	GLint location, GLsizei count, GLboolean transpose, const GLfloat* value);
+        glUniformMatrix4fv(id, 1, GL_FALSE, &matrix[0][0][0]);
+    }
+
+    void SetUniformMatrix4fv(const char* mat, glm::mat4* matrix)
+    {
+        int id = GetUniformMatrix4fv(mat);
+        if (id < 0) {
+            fprintf(stderr, "Unable to set uniform matrix '%s' in shader program id: '%i'\n", mat, ShaderProgramID);
+        }
+        //void glUniformMatrix4fv(	GLint location, GLsizei count, GLboolean transpose, const GLfloat* value);
+        glUniformMatrix4fv(id, 1, GL_FALSE, &matrix[0][0][0]);
     }
 };
