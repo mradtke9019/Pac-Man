@@ -1,12 +1,9 @@
 #version 330
 
 out vec4 FragColor;
-uniform float time;
-uniform mat4 MVP;
-uniform mat4 Identity;
 
 
 void main()                                                             
 {
-	FragColor = vec4(cos(time/400) * 1.0f, cos(time/500) * 1.0f, sin(time/600) * 1.0f, 1.0f);
+	FragColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);
 }

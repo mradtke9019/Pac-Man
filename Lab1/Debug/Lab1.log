@@ -1,4 +1,6 @@
-﻿  main.cpp
-C:\Users\mradt\source\repos\Trinity\Computer Graphics\Lab1\Lab1\main.cpp(289,28): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
-C:\Users\mradt\source\repos\Trinity\Computer Graphics\Lab1\Lab1\main.cpp(355,28): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+﻿  Shader.cpp
+  main.cpp
+C:\Users\mradt\source\repos\Trinity\Computer Graphics\Lab1\Lab1\main.cpp(209,28): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\mradt\source\repos\Trinity\Computer Graphics\Lab1\Lab1\main.cpp(275,33): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+  Generating Code...
   Lab1.vcxproj -> C:\Users\mradt\source\repos\Trinity\Computer Graphics\Lab1\Debug\Lab1.exe
