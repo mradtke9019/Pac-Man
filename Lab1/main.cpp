@@ -5,12 +5,17 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <chrono>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 // Macro for indexing vertex buffer
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
 using namespace std;
 
+GLuint shaderProgramID1;
 
 
 // Shader Functions- click on + to expand
@@ -143,7 +148,7 @@ void AddTriangles(GLfloat vertices[], GLuint shaderProgramID, int numTriangles, 
 		// Buffer will contain an array of vertices 
 		glBindBuffer(GL_ARRAY_BUFFER, VBOs[i]);
 		// After binding, we now fill our object with data, everything in "Vertices" goes to the GPU
-		glBufferData(GL_ARRAY_BUFFER, numVertices * 7 * sizeof(GLfloat), NULL, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, numVertices * 7 * sizeof(GLfloat), NULL, GL_DYNAMIC_DRAW);
 		// if you have more data besides vertices (e.g., vertex colours or normals), use glBufferSubData to tell the buffer when the vertices array ends and when the colors start
 		glBufferSubData(GL_ARRAY_BUFFER, 0, numVertices * 3 * sizeof(GLfloat), vertices);
 
@@ -279,6 +284,10 @@ void CustomOpenGLLearningCode() {
 void display(){
 
 	glClear(GL_COLOR_BUFFER_BIT);
+	auto timeValue = glutGet(GLUT_ELAPSED_TIME);
+	int timeLocation = glGetUniformLocation(shaderProgramID1, "time");
+	glUniform1f(timeLocation, timeValue);
+	glutPostRedisplay();
 	// NB: Make the call to draw the geometry in the currently activated vertex buffer. This is where the GPU starts to work!
 	glDrawArrays(GL_TRIANGLES, 0, 6);
     glutSwapBuffers();
@@ -326,16 +335,60 @@ void init()
 	//int length = mySize<GLfloat*>(triangles);
 
 	// Set up the shaders
-	GLuint shaderProgramID1 = CompileShaders("./vertexshader.txt", "./fragmentshader.txt");
+	shaderProgramID1 = CompileShaders("./vertexshader.txt", "./fragmentshader.txt");
 	//GLuint shaderProgramID2 = CompileShaders("./vertexshader2.txt", "./fragmentshader2.txt");
 	// Put the vertices and colors into a vertex buffer object
 	//generateObjectBuffer(vertices, colors);
 	// Link the current buffer to the shader
-	//linkCurrentBuffertoShader(shaderProgramID);	
+	//linkCurrentBuffertoShader(shaderProgramID);
+	
+	// add time to shader
+	//glUniform1f(time, timeValue);
+
+
 	AddTriangles(allVertices, shaderProgramID1, 2, 6);
 	int numTriangles = 2;
 	int vertexCount = numTriangles * 3;
+
+	auto timeValue = glutGet(GLUT_ELAPSED_TIME);
+	int timeLocation = glGetUniformLocation(shaderProgramID1, "time");
+	glUniform1f(timeLocation, timeValue);
 	
+
+	glm::mat4x4 MVP;
+	glm::mat4x4 identity;
+
+	int i, j;
+	for (i = 0; i < 4; ++i)
+	{
+		for (j = 0; j < 4; ++j)
+		{
+			if (i == j)
+			{ 
+				identity[i][j] = 1;
+				MVP[i][j] = 1;
+			}
+			else
+			{
+				identity[i][j] = 0;
+				MVP[i][j] = 0;
+			}
+			printf("%f, ", identity[i][j]);
+		}
+		printf("\n");
+	}
+	MVP[0][3] = 0.5;
+	MVP[1][3] = 0.5;
+	MVP[2][3] = 0.5;
+
+	GLuint MatrixID = glGetUniformLocation(shaderProgramID1, "MVP");
+	GLuint MatrixIdentity = glGetUniformLocation(shaderProgramID1, "Identity");
+	// Send our transformation to the currently bound shader,
+	// in the "MVP" uniform
+	// For each model you render, since the MVP will be different (at least the M part)
+	glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+	glUniformMatrix4fv(MatrixIdentity, 1, GL_FALSE, &identity[0][0]);
+
 	//LearnOpenGLTest(vertices, shaderProgramID1, 1, 3);
 	//LearnOpenGLTest(allVertices, shaderProgramID1, numTriangles, vertexCount);
 

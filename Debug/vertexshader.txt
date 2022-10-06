@@ -2,8 +2,12 @@
 
 in vec3 vPosition;
 in vec3 vColor;
+uniform float time;
+uniform mat4 MVP;
+uniform mat4 Identity;
 
 void main()                                                              
 {
-	gl_Position = vec4(vPosition.x, vPosition.y, vPosition.z, 1.0);
+	vec4 newPosition = abs(cos(time/500)) * Identity * vec4(vPosition.x, vPosition.y, vPosition.z, 1.0);
+	gl_Position = vec4(newPosition.x, newPosition.y, newPosition.z, 1.0);
 }
