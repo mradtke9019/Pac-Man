@@ -56,6 +56,11 @@ public:
 		VBO = generateObjectBuffer(vertices, colors);
 	}
 
+	Shader* GetShader()
+	{
+		return shader;
+	}
+
 	void AssignShader(Shader* Shader) 
 	{
 		this->shader = Shader;

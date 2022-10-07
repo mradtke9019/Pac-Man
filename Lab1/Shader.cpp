@@ -112,7 +112,7 @@ public:
         int id = glGetAttribLocation(GetShaderProgramID(), shaderAttribute.c_str());
         if (id < 0) 
         {
-            fprintf(stderr, "Error finding attrib '%s' in shader program id: '%i'\n", shaderAttribute, ShaderProgramID);
+            fprintf(stderr, "Error finding attrib '%s' in shader program id: '%i'\n", shaderAttribute.c_str(), ShaderProgramID);
         }
         return id;
     }
