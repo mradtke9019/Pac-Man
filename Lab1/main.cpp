@@ -35,22 +35,22 @@ void keyPress(unsigned char key, int x, int y)
 {
 	switch (key) {
 		
-	case 'q':
+	case 'w':
 		RotateX -= 0.1f;
 		break;
-	case 'w':
+	case 's':
 		RotateX += 0.1f;
 		break;
 	case 'a':
 		RotateY -= 0.1f;
 		break;
-	case 's':
+	case 'd':
 		RotateY += 0.1f;
 		break;
-	case 'z':
+	case 'r':
 		RotateZ -= 0.1f;
 		break;
-	case 'x':
+	case 'q':
 		RotateZ += 0.1f;
 		break;
 	}
@@ -59,10 +59,9 @@ void keyPress(unsigned char key, int x, int y)
 	glutPostRedisplay();
 }
 
-void display(){
-
-	glClear(GL_COLOR_BUFFER_BIT);
-
+void display()
+{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	auto timeValue = glutGet(GLUT_ELAPSED_TIME);
 	myShader->SetUniform1f("time", timeValue);
 
@@ -95,7 +94,7 @@ void display(){
 
 void init()
 {
-
+	glEnable(GL_DEPTH_TEST);
 	GLfloat diamondVerts[] = {
 		-1.0f, 0.0f, -1.0f,
 		1.0f, 0.0f, -1.0f,
