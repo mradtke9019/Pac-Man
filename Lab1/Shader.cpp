@@ -107,6 +107,16 @@ public:
         }
     }
     
+    GLuint GetAttribLocation(std::string shaderAttribute)
+    {
+        int id = glGetAttribLocation(GetShaderProgramID(), shaderAttribute.c_str());
+        if (id < 0) 
+        {
+            fprintf(stderr, "Error finding attrib '%s' in shader program id: '%i'\n", shaderAttribute, ShaderProgramID);
+        }
+        return id;
+    }
+    
     std::string GetVertexShaderText() 
     {
         return VertexShaderText;

@@ -20,6 +20,7 @@
 using namespace std;
 
 Shader* myShader;
+Object* myDiamond;
 
 // VBO Functions - click on + to expand
 #pragma region VBO_FUNCTIONS
@@ -119,7 +120,8 @@ void display(){
 
 	glutPostRedisplay();
 	// NB: Make the call to draw the geometry in the currently activated vertex buffer. This is where the GPU starts to work!
-	glDrawArrays(GL_TRIANGLES, 0, 6);
+	//glDrawArrays(GL_TRIANGLES, 0, 24);
+	myDiamond->Draw();
     glutSwapBuffers();
 }
 
@@ -181,37 +183,37 @@ void init()
 	};
 
 	GLfloat diamondColors[] = {
-	1.0f, 0.0f, 0.0f, 1.0f,
-	0.0f, 1.0f, 0.0f, 1.0f,
-	0.0f, 0.0f, 1.0f, 1.0f,
+		1.0f, 0.0f, 0.0f, 1.0f,
+		0.0f, 1.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f, 1.0f,
 
-	-1.0f, 0.0f, -1.0f,
-	-1.0f, 0.0f, 1.0f,
-	0.0f, 1.0f, 0.0f,
+		1.0f, 0.0f, 0.0f, 1.0f,
+		0.0f, 1.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f, 1.0f,
 
-	-1.0f,0.0f,1.0f,
-	1.0,0.0f,1.0f,
-	0.0f,1.0f,0.0f,
+		1.0f, 0.0f, 0.0f, 1.0f,
+		0.0f, 1.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f, 1.0f,
 
-	1.0,0.0f,1.0f,
-	1.0,0.0f,-1.0f,
-	0.0f,1.0f,0.0f,
+		1.0f, 0.0f, 0.0f, 1.0f,
+		0.0f, 1.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f, 1.0f,
 
-	-1.0f, 0.0f, -1.0f,
-	1.0f, 0.0f, -1.0f,
-	0.0f, -1.0f, 0.0f,
+		1.0f, 0.0f, 0.0f, 1.0f,
+		0.0f, 1.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f, 1.0f,
 
-	-1.0f, 0.0f, -1.0f,
-	-1.0f, 0.0f, 1.0f,
-	0.0f, -1.0f, 0.0f,
+		1.0f, 0.0f, 0.0f, 1.0f,
+		0.0f, 1.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f, 1.0f,
 
-	-1.0f,0.0f,1.0f,
-	1.0,0.0f,1.0f,
-	0.0f,-1.0f,0.0f,
+		1.0f, 0.0f, 0.0f, 1.0f,
+		0.0f, 1.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f, 1.0f,
 
-	1.0,0.0f,1.0f,
-	1.0,0.0f,-1.0f,
-	0.0f,-1.0f,0.0f
+		1.0f, 0.0f, 0.0f, 1.0f,
+		0.0f, 1.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f, 1.0f,
 	};
 
 	//getTriangleData();
@@ -221,6 +223,8 @@ void init()
 
 	// Set up the shaders
 	myShader = new Shader("./vertexshader.txt", "./fragmentshader.txt", true);
+
+	myDiamond = new Object(diamondVerts, diamondColors, 24, myShader);
 
 	//shaderProgramID1 = CompileShaders("./vertexshader.txt", "./fragmentshader.txt");
 	//GLuint shaderProgramID2 = CompileShaders("./vertexshader2.txt", "./fragmentshader2.txt");
@@ -233,9 +237,9 @@ void init()
 	//glUniform1f(time, timeValue);
 
 
-	AddTriangles(vertices1, colors1, myShader->GetShaderProgramID(), 2, 6);
-	int numTriangles = 2;
-	int vertexCount = numTriangles * 3;
+	//AddTriangles(diamondVerts, diamondColors, myShader->GetShaderProgramID(), 8, 24);
+	//int numTriangles = 2;
+	//int vertexCount = numTriangles * 3;
 
 	auto timeValue = glutGet(GLUT_ELAPSED_TIME);
 	myShader->SetUniform1f("time", timeValue);
@@ -243,7 +247,7 @@ void init()
 
 
 	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(1.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
 
 	// note that we're translating the scene in the reverse direction of where we want to move
@@ -251,7 +255,7 @@ void init()
 	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
 
 
-	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)Width / (float)Height, 0.1f, 100.0f);
+	glm::mat4 projection = glm::perspective(glm::radians(60.0f), (float)Width / (float)Height, 0.1f, 100.0f);
 
 	glm::mat4 test = glm::mat4(1.0f);
 	test = glm::translate(test, glm::vec3(0.5f, 0.5f, 0.0f));
@@ -269,10 +273,6 @@ void init()
 	myShader->SetUniformMatrix4fv("model", &model);
 	myShader->SetUniformMatrix4fv("view", &view);
 	myShader->SetUniformMatrix4fv("projection", &projection);
-	//myShader->SetUniformMatrix4fv("Identity", &identity);
-
-	//LearnOpenGLTest(vertices, shaderProgramID1, 1, 3);
-	//LearnOpenGLTest(allVertices, shaderProgramID1, numTriangles, vertexCount);
 
 	//AddTriangles(vertices, colors, shaderProgramID1, 1, 3);
 	//AddTriangles(vertices2, colors, shaderProgramID2, 1, 3);
