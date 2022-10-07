@@ -7,10 +7,11 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 uniform mat4 trans;
+uniform mat4 test;
 out vec4 color;
 
 void main()                                                              
 {
-	gl_Position = projection * view * model * vec4(vPosition, 1.0);
+	gl_Position = vec4(cos(time/200) * vPosition, 1.0);//projection * view * model * vec4(vPosition, 1.0);
 	color = vColor;
 }
