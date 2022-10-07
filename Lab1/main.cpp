@@ -36,7 +36,7 @@ GLuint generateObjectBuffer(GLfloat vertices[], GLfloat colors[]) {
 	// if you have more data besides vertices (e.g., vertex colours or normals), use glBufferSubData to tell the buffer when the vertices array ends and when the colors start
 	glBufferSubData (GL_ARRAY_BUFFER, 0, numVertices*3*sizeof(GLfloat), vertices);
 	glBufferSubData (GL_ARRAY_BUFFER, numVertices*3*sizeof(GLfloat), numVertices*4*sizeof(GLfloat), colors);
-return VBO;
+	return VBO;
 }
 
 void linkCurrentBuffertoShader(GLuint shaderProgramID){
@@ -56,29 +56,26 @@ void linkCurrentBuffertoShader(GLuint shaderProgramID){
 
 void AddTriangles(GLfloat vertices[], GLfloat colors[], GLuint shaderProgramID, int numTriangles, GLuint numVertices) {
 	// Genderate 1 generic buffer object, called VBO
-	GLuint* VBOs = new GLuint[numTriangles];
-	unsigned int* VAOs = new GLuint[numTriangles];
-	glGenVertexArrays(numTriangles, VAOs);
-	glGenBuffers(numTriangles, VBOs);
+	GLuint VBO;
+
+	glGenBuffers(1, &VBO);
 	// find the location of the variables that we will be using in the shader program
 	GLuint positionID = glGetAttribLocation(shaderProgramID, "vPosition");
 	GLuint colorID = glGetAttribLocation(shaderProgramID, "vColor");
 
-	for (int i = 0; i < numTriangles; i++) {
-		glBindVertexArray(VAOs[i]);
 
-		// In OpenGL, we bind (make active) the handle to a target name and then execute commands on that target
-		// Buffer will contain an array of vertices 
-		glBindBuffer(GL_ARRAY_BUFFER, VBOs[i]);
-		// After binding, we now fill our object with data, everything in "Vertices" goes to the GPU
-		glBufferData(GL_ARRAY_BUFFER, numVertices * 7 * sizeof(GLfloat), NULL, GL_DYNAMIC_DRAW);
-		// if you have more data besides vertices (e.g., vertex colours or normals), use glBufferSubData to tell the buffer when the vertices array ends and when the colors start
-		glBufferSubData(GL_ARRAY_BUFFER, 0, numVertices * 3 * sizeof(GLfloat), vertices);
-		glBufferSubData(GL_ARRAY_BUFFER, numVertices * 3 * sizeof(GLfloat), numVertices * 4 * sizeof(GLfloat), colors);
-	}
+	// In OpenGL, we bind (make active) the handle to a target name and then execute commands on that target
+	// Buffer will contain an array of vertices 
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	// After binding, we now fill our object with data, everything in "Vertices" goes to the GPU
+	glBufferData(GL_ARRAY_BUFFER, numVertices * 7 * sizeof(GLfloat), NULL, GL_DYNAMIC_DRAW);
+	// if you have more data besides vertices (e.g., vertex colours or normals), use glBufferSubData to tell the buffer when the vertices array ends and when the colors start
+	glBufferSubData(GL_ARRAY_BUFFER, 0, numVertices * 3 * sizeof(GLfloat), vertices);
+	glBufferSubData(GL_ARRAY_BUFFER, numVertices * 3 * sizeof(GLfloat), numVertices * 4 * sizeof(GLfloat), colors);
+	
 
 	int xyzSize = 3;
-	int rgbSize = 3;
+	int rgbSize = 4;
 	int stride = sizeof(GLfloat) * xyzSize;// sizeof(GLfloat)* (xyzSize + rgbSize);
 
 	// Have to enable this
@@ -122,24 +119,15 @@ void display(){
 
 	glutPostRedisplay();
 	// NB: Make the call to draw the geometry in the currently activated vertex buffer. This is where the GPU starts to work!
-	glDrawArrays(GL_TRIANGLES, 0, 24);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
     glutSwapBuffers();
 }
 
 
 void init()
 {
-	GLfloat allVerticesWithColor[] = {
-		// x,y,z			r,g,b
-		-1.0f, -1.0f, -1.0f, 1.0, 0.0, 0.0,
-		0.0f, -1.0f, -1.0f, 1.0, 0.0, 0.0,
-		-0.5f, 1.0f, -1.0f, 1.0, 0.0, 0.0,
-		0.0f, -1.0f, -1.0f, 1.0, 0.0, 0.0,
-		1.0f, -1.0f, -1.0f, 1.0, 0.0, 0.0,
-		0.5f, 1.0f, -1.0f, 1.0, 0.0, 0.0,
-	};
 
-	GLfloat allVertices[] = {
+	GLfloat vertices1[] = {
 		// x,y,z			
 		- 1.0f, -1.0f, -1.0f,
 		0.0f, -1.0f, -1.0f,
@@ -148,43 +136,82 @@ void init()
 		1.0f, -1.0f, -1.0f,
 		0.5f, 1.0f, -1.0f
 	};
-
-	// Create 3 vertices that make up a triangle that fits on the viewport 
-	GLfloat vertices[] = {
-			-1.0f, -1.0f, 0.0f,
-			0.0f, -1.0f, 0.0f,
-			-0.5f, 1.0f, 0.0f
+	GLfloat colors1[] = {
+		//rgba
+		1.0f, 0.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 0.0f, 1.0f
 	};
 
-	GLfloat vertices2[] = {
+	GLfloat diamondVerts[] = {
+		-1.0f, 0.0f, -1.0f,
+		1.0f, 0.0f, -1.0f,
+		0.0f, 1.0f, 0.0f,
+
+		-1.0f, 0.0f, -1.0f,
+		-1.0f, 0.0f, 1.0f,
+		0.0f, 1.0f, 0.0f,
+
+		-1.0f,0.0f,1.0f,
+		1.0,0.0f,1.0f,
+		0.0f,1.0f,0.0f,
+
+		1.0,0.0f,1.0f,
+		1.0,0.0f,-1.0f,
+		0.0f,1.0f,0.0f,
+
+		-1.0f, 0.0f, -1.0f,
+		1.0f, 0.0f, -1.0f,
 		0.0f, -1.0f, 0.0f,
-		1.0f, -1.0f, 0.0f,
-		0.5f, 1.0f, 0.0f
+
+		-1.0f, 0.0f, -1.0f,
+		-1.0f, 0.0f, 1.0f,
+		0.0f, -1.0f, 0.0f,
+
+		-1.0f,0.0f,1.0f,
+		1.0,0.0f,1.0f,
+		0.0f,-1.0f,0.0f,
+
+		1.0,0.0f,1.0f,
+		1.0,0.0f,-1.0f,
+		0.0f,-1.0f,0.0f
 	};
 
-	GLfloat vertexPos[] = {
-		0.0, 2.0, 0.0,  1.0, 0.0, 0.0,  0.0, 0.0, -1.0,
-		0.0, 2.0, 0.0,  1.0, 0.0, 0.0,  0.0, 0.0, 1.0,
-		0.0, 2.0, 0.0,  -1.0, 0.0, 0.0,  0.0, 0.0, -1.0,
-		0.0, 2.0, 0.0,  -1.0, 0.0, 0.0,  0.0, 0.0, 1.0,
+	GLfloat diamondColors[] = {
+	1.0f, 0.0f, 0.0f, 1.0f,
+	0.0f, 1.0f, 0.0f, 1.0f,
+	0.0f, 0.0f, 1.0f, 1.0f,
 
-		0.0, -2.0, 0.0,  1.0, 0.0, 0.0,  0.0, 0.0, -1.0,
-		0.0, -2.0, 0.0,  1.0, 0.0, 0.0,  0.0, 0.0, 1.0,
-		0.0, -2.0, 0.0,  -1.0, 0.0, 0.0,  0.0, 0.0, -1.0,
-		0.0, -2.0, 0.0,  -1.0, 0.0, 0.0,  0.0, 0.0, 1.0,
-	};
-	GLfloat vertexColors[] = {
-		1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
-			1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
-			1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
-			1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
-			1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
+	-1.0f, 0.0f, -1.0f,
+	-1.0f, 0.0f, 1.0f,
+	0.0f, 1.0f, 0.0f,
 
-			1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
-			1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
-			1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
-			1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
-			1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
+	-1.0f,0.0f,1.0f,
+	1.0,0.0f,1.0f,
+	0.0f,1.0f,0.0f,
+
+	1.0,0.0f,1.0f,
+	1.0,0.0f,-1.0f,
+	0.0f,1.0f,0.0f,
+
+	-1.0f, 0.0f, -1.0f,
+	1.0f, 0.0f, -1.0f,
+	0.0f, -1.0f, 0.0f,
+
+	-1.0f, 0.0f, -1.0f,
+	-1.0f, 0.0f, 1.0f,
+	0.0f, -1.0f, 0.0f,
+
+	-1.0f,0.0f,1.0f,
+	1.0,0.0f,1.0f,
+	0.0f,-1.0f,0.0f,
+
+	1.0,0.0f,1.0f,
+	1.0,0.0f,-1.0f,
+	0.0f,-1.0f,0.0f
 	};
 
 	//getTriangleData();
@@ -206,7 +233,7 @@ void init()
 	//glUniform1f(time, timeValue);
 
 
-	AddTriangles(vertexPos, vertexColors, myShader->GetShaderProgramID(), 3, 24);
+	AddTriangles(vertices1, colors1, myShader->GetShaderProgramID(), 2, 6);
 	int numTriangles = 2;
 	int vertexCount = numTriangles * 3;
 
@@ -225,6 +252,11 @@ void init()
 
 
 	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)Width / (float)Height, 0.1f, 100.0f);
+
+	glm::mat4 test = glm::mat4(1.0f);
+	test = glm::translate(test, glm::vec3(0.5f, 0.5f, 0.0f));
+
+	myShader->SetUniformMatrix4fv("test", &test);
 
 	//GLuint MatrixID = glGetUniformLocation(myShader->GetShaderProgramID(), "MVP");
 	//GLuint MatrixIdentity = glGetUniformLocation(myShader->GetShaderProgramID(), "Identity");
