@@ -26,6 +26,9 @@ GLfloat RotateZ = 0.0f;
 GLfloat RotateY = 0.0f;
 GLfloat RotateX = 0.0f;
 
+GLfloat CameraTranslateX = 0.0f;
+GLfloat CameraTranslateY = 0.0f;
+GLfloat CameraTranslateZ = 0.0f;
 
 // function to allow keyboard control
 // it's called a callback function and must be registerd in main() using glutKeyboardFunc();
@@ -33,24 +36,37 @@ GLfloat RotateX = 0.0f;
 // similar functions exist for mouse control etc
 void keyPress(unsigned char key, int x, int y)
 {
+	GLfloat translateScale = 0.1f;
 	switch (key) {
-		
-	case 'w':
+
+	case'w':
+		CameraTranslateZ -= translateScale;
+		break;
+	case's':
+		CameraTranslateZ += translateScale;
+		break;
+	case'a':
+		CameraTranslateX -= translateScale;
+		break;
+	case'd':
+		CameraTranslateX += translateScale;
+		break;
+	case 'n':
 		RotateX -= 0.1f;
 		break;
-	case 's':
+	case 'm':
 		RotateX += 0.1f;
 		break;
-	case 'a':
+	case 'k':
 		RotateY -= 0.1f;
 		break;
-	case 'd':
+	case 'l':
 		RotateY += 0.1f;
 		break;
-	case 'r':
+	case 'o':
 		RotateZ -= 0.1f;
 		break;
-	case 'q':
+	case 'p':
 		RotateZ += 0.1f;
 		break;
 	}
@@ -65,6 +81,19 @@ void display()
 	auto timeValue = glutGet(GLUT_ELAPSED_TIME);
 	myShader->SetUniform1f("time", timeValue);
 
+	// The position of our camera in 3d space
+	glm::vec3 cameraTranslation = glm::vec3(CameraTranslateX, CameraTranslateY, CameraTranslateZ);
+	glm::vec3 cameraPos = glm::vec3(0.0f,3.0f,3.0f) + cameraTranslation;//glm::vec3(0.0f, 3.0f, 3.0f);
+	glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f) + cameraTranslation;
+
+	glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
+	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+
+	glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
+	glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);
+
+
+
 	glm::mat4 model = glm::mat4(1.0f);
 	glm::mat4 view = glm::mat4(1.0f);
 	glm::mat4 projection = glm::mat4(1.0f);
@@ -73,7 +102,10 @@ void display()
 		glm::rotate(glm::mat4(1.0f), RotateZ, glm::vec3(0.0f, 0.0f, 1.0f)) * 
 		glm::rotate(glm::mat4(1.0f), RotateY, glm::vec3(0.0f, 1.0f, 0.0f)) * 
 		glm::rotate(glm::mat4(1.0f), RotateX, glm::vec3(1.0f, 0.0f, 0.0f));
-	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+	//view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+	view = glm::lookAt(cameraPos,
+		cameraTarget,
+		cameraUp);
 	projection = glm::perspective(glm::radians(60.0f), (float)Width / (float)Height, 0.1f, 100.0f);
 
 
@@ -192,7 +224,7 @@ int main(int argc, char** argv){
 	glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGB);
     glutInitWindowSize(Width, Height);
-    glutCreateWindow("Hello Triangle"); 
+    glutCreateWindow("Matt Radtke - Graphics"); 
 	// Tell glut where the display function is
 	glutDisplayFunc(display);
 	glutKeyboardFunc(keyPress); // allows for keyboard control. See keyPress function above

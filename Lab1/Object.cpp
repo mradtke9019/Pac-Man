@@ -27,6 +27,25 @@ private:
 		return VBO;
 	}
 
+	GLuint generateObjectBuffer(glm::vec3 vertices[], glm::vec4 colors[])
+	{
+		GLuint VBO;
+		glGenBuffers(1, &VBO);
+		// In OpenGL, we bind (make active) the handle to a target name and then execute commands on that target
+		// Buffer will contain an array of vertices
+		size_t vertexMemory = NumVertices * sizeof(glm::vec3);
+		size_t colorMemory = NumVertices * sizeof(glm::vec4);
+		size_t memoryTotal = vertexMemory + colorMemory;
+
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		// After binding, we now fill our object with data, everything in "Vertices" goes to the GPU
+		glBufferData(GL_ARRAY_BUFFER, memoryTotal, NULL, GL_STATIC_DRAW);
+		// if you have more data besides vertices (e.g., vertex colours or normals), use glBufferSubData to tell the buffer when the vertices array ends and when the colors start
+		glBufferSubData(GL_ARRAY_BUFFER, 0, vertexMemory, vertices);
+		glBufferSubData(GL_ARRAY_BUFFER, vertexMemory, colorMemory, colors);
+		return VBO;
+	}
+
 	void linkCurrentBuffertoShader() {
 		// find the location of the variables that we will be using in the shader program
 		GLuint positionID = shader->GetAttribLocation("vPosition");
@@ -49,6 +68,14 @@ public:
 	}
 
 	Object(GLfloat vertices[], GLfloat colors[], int numVertices, Shader* Shader)
+		: VBO(0), NumVertices(0), NumTriangles(0), shader(0)
+	{
+		shader = Shader;
+		NumVertices = numVertices;
+		VBO = generateObjectBuffer(vertices, colors);
+	}
+
+	Object(glm::vec3 vertices[], glm::vec4 colors[], int numVertices, Shader* Shader)
 		: VBO(0), NumVertices(0), NumTriangles(0), shader(0)
 	{
 		shader = Shader;
