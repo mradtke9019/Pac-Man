@@ -1,4 +1,9 @@
 #include "Shader.cpp"
+#include <vector>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
 
 
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
@@ -11,6 +16,8 @@ private:
 	GLuint VBO;
 	int NumVertices;
 	int NumTriangles;
+	glm::mat4 modelTransform;
+	glm::vec3 position;
 
 	GLuint generateObjectBuffer(GLfloat vertices[], GLfloat colors[]) {
 		// Genderate 1 generic buffer object, called VBO
@@ -45,6 +52,52 @@ private:
 		glBufferSubData(GL_ARRAY_BUFFER, vertexMemory, colorMemory, colors);
 		return VBO;
 	}
+	std::vector<std::string> split(std::string text, std::string delimiter) {
+		std::vector<std::string> words;
+
+		size_t pos = 0;
+		do  {
+			pos = text.find(delimiter);
+			words.push_back(text.substr(0, pos));
+			text.erase(0, pos + delimiter.length());
+		} while (pos != std::string::npos);
+
+		return words;
+	}
+
+	void loadOBJFile(std::string path) 
+	{
+		GLuint vbo = 0;
+		int numTriangles = 0;
+		int numVertices = 0;
+
+		std::ifstream stream(path);
+		std::string file((std::istreambuf_iterator<char>(stream)),
+			std::istreambuf_iterator<char>());
+
+		std::vector<glm::vec3>* vertices = new std::vector<glm::vec3>();
+		std::vector<std::string> lines = split(file, "\n");
+		for (auto line : lines)
+		{
+			if (line.empty())
+			{
+				continue;
+			}
+			std::vector<std::string> row = split(line, " ");
+			if (row.at(0) == "v")
+			{
+				vertices->push_back(glm::vec3(
+					(float)atoi(row.at(1).c_str()), 
+					(float)atoi(row.at(2).c_str()), 
+					(float)atoi(row.at(3).c_str())));
+				std::cout << line << std::endl;
+			}
+		}
+
+		VBO = vbo;
+		NumTriangles = numTriangles;
+		NumVertices = numVertices;
+	}
 
 	void linkCurrentBuffertoShader() {
 		// find the location of the variables that we will be using in the shader program
@@ -60,27 +113,33 @@ private:
 	}
 
 public:
-	Object(std::string objectPath, Shader* Shader)
+	Object(std::string objectPath, Shader* Shader, glm::vec3 Position)
 		: VBO(0), NumVertices(0), NumTriangles(0), shader(0)
 	{
+		position = Position;
 		shader = Shader;
-		//Take the object file and parse it into a vbo
+		modelTransform = glm::translate(glm::mat4(1.0f), position);
+		loadOBJFile(objectPath);
 	}
 
-	Object(GLfloat vertices[], GLfloat colors[], int numVertices, Shader* Shader)
+	Object(GLfloat vertices[], GLfloat colors[], int numVertices, Shader* Shader, glm::vec3 Position)
 		: VBO(0), NumVertices(0), NumTriangles(0), shader(0)
 	{
 		shader = Shader;
 		NumVertices = numVertices;
+		position = Position;
 		VBO = generateObjectBuffer(vertices, colors);
+		modelTransform = glm::translate(glm::mat4(1.0f), position);
 	}
 
-	Object(glm::vec3 vertices[], glm::vec4 colors[], int numVertices, Shader* Shader)
+	Object(glm::vec3 vertices[], glm::vec4 colors[], int numVertices, Shader* Shader, glm::vec3 Position)
 		: VBO(0), NumVertices(0), NumTriangles(0), shader(0)
 	{
 		shader = Shader;
+		position = Position;
 		NumVertices = numVertices;
 		VBO = generateObjectBuffer(vertices, colors);
+		modelTransform = glm::translate(glm::mat4(1.0f), position);
 	}
 
 	Shader* GetShader()
@@ -93,10 +152,21 @@ public:
 		this->shader = Shader;
 	}
 
+	glm::mat4 GetModelTransform()
+	{
+		return modelTransform;
+	}
+
+	void SetModelTransform(glm::mat4 Model)
+	{
+		modelTransform = Model;
+	}
+
 	void Draw()
 	{
 		shader->UseShader();
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		shader->SetUniformMatrix4fv("model", &modelTransform);
 		linkCurrentBuffertoShader();
 		glDrawArrays(GL_TRIANGLES, 0, NumVertices);
 	}
