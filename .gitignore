@@ -247,3 +247,6 @@ paket-files/
 
 **/Lab1/Debub/Lab1.tlog
 **Debug/
+
+!Assimp32.dll
+!Assimp.dll

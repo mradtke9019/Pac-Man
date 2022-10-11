@@ -1,9 +1,14 @@
 #include "Shader.cpp"
+#include "Mesh.cpp"
 #include <vector>
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <vector>
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+#include <assimp/cimport.h> // scene importer
 
 
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
@@ -65,39 +70,6 @@ private:
 		return words;
 	}
 
-	void loadOBJFile(std::string path) 
-	{
-		GLuint vbo = 0;
-		int numTriangles = 0;
-		int numVertices = 0;
-
-		std::ifstream stream(path);
-		std::string file((std::istreambuf_iterator<char>(stream)),
-			std::istreambuf_iterator<char>());
-
-		std::vector<glm::vec3>* vertices = new std::vector<glm::vec3>();
-		std::vector<std::string> lines = split(file, "\n");
-		for (auto line : lines)
-		{
-			if (line.empty())
-			{
-				continue;
-			}
-			std::vector<std::string> row = split(line, " ");
-			if (row.at(0) == "v")
-			{
-				vertices->push_back(glm::vec3(
-					(float)atoi(row.at(1).c_str()), 
-					(float)atoi(row.at(2).c_str()), 
-					(float)atoi(row.at(3).c_str())));
-				std::cout << line << std::endl;
-			}
-		}
-
-		VBO = vbo;
-		NumTriangles = numTriangles;
-		NumVertices = numVertices;
-	}
 
 	void linkCurrentBuffertoShader() {
 		// find the location of the variables that we will be using in the shader program
@@ -119,7 +91,6 @@ public:
 		position = Position;
 		shader = Shader;
 		modelTransform = glm::translate(glm::mat4(1.0f), position);
-		loadOBJFile(objectPath);
 	}
 
 	Object(GLfloat vertices[], GLfloat colors[], int numVertices, Shader* Shader, glm::vec3 Position)

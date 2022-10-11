@@ -204,8 +204,8 @@ void init()
 
 	// Set up the shaders
 	myShader = new Shader("./vertexshader.txt", "./fragmentshader.txt", true);
-	myObjects.push_back(Object(diamondVerts, diamondColors, 24, myShader, glm::vec3(-3.0f, 0.0f, 0.0f)));
-	myObjects.push_back(Object("./Lowpoly_tree_sample.obj", myShader, glm::vec3(3.0f, 0.0f, 0.0f)));
+	myObjects.push_back(Object(diamondVerts, diamondColors, 24, myShader, glm::vec3(-2.0f, 0.0f, 0.0f)));
+	myObjects.push_back(Object(diamondVerts, diamondColors, 24, myShader, glm::vec3(2.0f, 0.0f, 0.0f)));
 	
 
 	auto timeValue = glutGet(GLUT_ELAPSED_TIME);
