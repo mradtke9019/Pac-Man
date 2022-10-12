@@ -1,29 +1,9 @@
-#include "Shader.cpp"
-#include "Mesh.cpp"
-#include <vector>
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <vector>
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
-#include <assimp/cimport.h> // scene importer
-
-
-#define BUFFER_OFFSET(i) ((char *)NULL + (i))
+#include "Object.h"
 
 #pragma once
 class Object
 {
 private:
-	Shader* shader;
-	GLuint VBO;
-	int NumVertices;
-	int NumTriangles;
-	glm::mat4 modelTransform;
-	glm::vec3 position;
-
 	GLuint generateObjectBuffer(GLfloat vertices[], GLfloat colors[]) {
 		// Genderate 1 generic buffer object, called VBO
 		GLuint VBO;
@@ -57,19 +37,6 @@ private:
 		glBufferSubData(GL_ARRAY_BUFFER, vertexMemory, colorMemory, colors);
 		return VBO;
 	}
-	std::vector<std::string> split(std::string text, std::string delimiter) {
-		std::vector<std::string> words;
-
-		size_t pos = 0;
-		do  {
-			pos = text.find(delimiter);
-			words.push_back(text.substr(0, pos));
-			text.erase(0, pos + delimiter.length());
-		} while (pos != std::string::npos);
-
-		return words;
-	}
-
 
 	void linkCurrentBuffertoShader() {
 		// find the location of the variables that we will be using in the shader program
