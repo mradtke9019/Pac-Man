@@ -9,7 +9,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include "Shader.cpp"
+#include <vector>
+#include "Shader.h"
 
 struct Vertex {
     glm::vec3 Position;
@@ -25,7 +26,20 @@ struct Texture {
 #pragma once
 class Mesh {
 private:
+    //  render data
+    unsigned int VAO, VBO, EBO;
+    Shader* shader;
+
+    void setupMesh();
 
 public:
+    // mesh data
+    std::vector<Vertex>       vertices;
+    std::vector<unsigned int> indices;
+    std::vector<Texture>      textures;
+
+    Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
+
+    void Draw(Shader& shader);
 
 };
