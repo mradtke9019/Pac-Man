@@ -168,6 +168,10 @@
     <ClInclude Include="Object.h" />
     <ClInclude Include="Shader.h" />
   </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="assimpFragmentShader.txt" />
+    <CopyFileToFolders Include="assimpVertexShader.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

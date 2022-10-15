@@ -42,7 +42,7 @@ void Object::SetModelTransform(glm::mat4 Model)
 
 void Object::Draw()
 {
-	shader->UseShader();
+	shader->Use();
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	shader->SetUniformMatrix4fv("model", &modelTransform);
 	linkCurrentBuffertoShader();

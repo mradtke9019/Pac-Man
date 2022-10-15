@@ -1,0 +1,13 @@
+#version 330
+
+in vec4 color;
+out vec4 FragColor;
+uniform float time;
+uniform mat4 MVP;
+uniform mat4 Identity;
+
+
+void main()                                                             
+{
+	FragColor = color;
+}

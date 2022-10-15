@@ -22,6 +22,7 @@ using namespace std;
 
 Shader* myShader;
 vector<Object> myObjects;
+vector<Mesh> meshes;
 
 GLfloat RotateZ = 0.0f;
 GLfloat RotateY = 0.0f;
@@ -127,6 +128,13 @@ void display()
 		myObjects.at(i).Draw();
 	}
 
+	for (int i = 0; i < meshes.size(); i++) {
+
+		meshes.at(i).GetShader()->SetUniformMatrix4fv("model", &model);
+		meshes.at(i).GetShader()->SetUniformMatrix4fv("view", &view);
+		meshes.at(i).GetShader()->SetUniformMatrix4fv("projection", &projection);
+		meshes.at(i).Draw();
+	}
     glutSwapBuffers();
 }
 
@@ -206,7 +214,30 @@ void init()
 	myShader = new Shader("./vertexshader.txt", "./fragmentshader.txt", true);
 	myObjects.push_back(Object(diamondVerts, diamondColors, 24, myShader, glm::vec3(-2.0f, 0.0f, 0.0f)));
 	myObjects.push_back(Object(diamondVerts, diamondColors, 24, myShader, glm::vec3(2.0f, 0.0f, 0.0f)));
+
+
+
+
+	// Set up the shaders
+	Shader* assimpShader = new Shader("./assimpVertexShader.txt", "./assimpFragmentShader.txt", true);
+
+	Vertex v1 = Vertex();
+	v1.Position = glm::vec3(-1.0f, 0.0f, 0.0f);
+	Vertex v2 = Vertex();
+	v2.Position = glm::vec3(1.0f, 0.0f, 0.0f);
+	Vertex v3 = Vertex();
+	v3.Position = glm::vec3(0.0f, 1.0f, 0.0f);
+	std::vector<Vertex> vertices;
+	vertices.push_back(v1);
+	vertices.push_back(v2);
+	vertices.push_back(v3);
 	
+	std::vector<unsigned int> indices;
+	indices.push_back(0);
+	indices.push_back(1);
+	indices.push_back(2);
+	Mesh myMesh = Mesh(vertices, indices, (std::vector<Texture>)0, assimpShader);
+	meshes.push_back(myMesh);
 
 	auto timeValue = glutGet(GLUT_ELAPSED_TIME);
 	myShader->SetUniform1f("time", timeValue);
@@ -223,6 +254,11 @@ void init()
 	myShader->SetUniformMatrix4fv("model", &model);
 	myShader->SetUniformMatrix4fv("view", &view);
 	myShader->SetUniformMatrix4fv("projection", &projection);
+
+
+	assimpShader->SetUniformMatrix4fv("model", &model);
+	assimpShader->SetUniformMatrix4fv("view", &view);
+	assimpShader->SetUniformMatrix4fv("projection", &projection);
 }
 
 
