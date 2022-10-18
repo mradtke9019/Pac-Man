@@ -250,3 +250,6 @@ paket-files/
 
 !Assimp32.dll
 !Assimp.dll
+
+!knight.obj
+!Lowpoly_tree_sample.obj
