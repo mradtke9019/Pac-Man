@@ -19,6 +19,9 @@
 class Camera
 {
 private:
+	float yaw;
+	float pitch;
+	float roll;
 	glm::vec3 Position;
 	glm::vec3 Up;
 	glm::vec3 Target;
@@ -41,15 +44,20 @@ private:
 public:
 	Camera();
 
+	glm::mat4 FixedViewCamera();
+
 	glm::mat4 GetViewTransform();
 
 	glm::vec3 GetPosition();
+
 	void SetPosition(glm::vec3);
 
 	glm::vec3 GetUp();
+	
 	void SetUp(glm::vec3);
 
 	glm::vec3 GetTarget();
+	
 	void SetTarget(glm::vec3);
 };
 

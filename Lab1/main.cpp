@@ -14,6 +14,7 @@
 #include <vector>
 #include "Model.h"
 #include <random>
+#include "Camera.h"
 
 // Macro for indexing vertex buffer
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
@@ -26,6 +27,7 @@ Shader* myShader;
 Shader* assimpShader;
 vector<Object> myObjects;
 vector<Mesh> meshes;
+Camera* camera;
 
 vector<Model> myModels;
 
@@ -99,29 +101,10 @@ void display()
 	auto timeValue = glutGet(GLUT_ELAPSED_TIME);
 	myShader->SetUniform1f("time", timeValue);
 
-	// The position of our camera in 3d space
-	glm::vec3 cameraTranslation = glm::vec3(CameraTranslateX, CameraTranslateY, CameraTranslateZ);
-	glm::vec3 cameraPos = glm::vec3(0.0f,5.0f,5.0f) + cameraTranslation;//glm::vec3(0.0f, 3.0f, 3.0f);
-	glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f) + cameraTranslation;
+	camera->GetViewTransform();
+	glm::mat4 view = camera->GetViewTransform();
 
-	glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
-	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-
-	glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
-	glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);
-
-
-
-	glm::mat4 view = glm::mat4(1.0f);
-	glm::mat4 projection = glm::mat4(1.0f);
-	// glm::scale( X, vec3 ) = X * glm::scale( Identity, vec3 )
-	
-
-	//view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-	view = glm::lookAt(cameraPos,
-		cameraTarget,
-		cameraUp);
-	projection = glm::perspective(glm::radians(60.0f), (float)Width / (float)Height, 0.1f, 100.0f);
+	glm::mat4 projection = glm::perspective(glm::radians(60.0f), (float)Width / (float)Height, 0.1f, 100.0f);
 
 	float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 	assimpShader->SetUniform1f("rand", r);
@@ -233,7 +216,7 @@ void init()
 		0.0f, 0.0f, 1.0f, 1.0f,
 	};
 
-
+	camera = new Camera();
 
 	// Set up the shaders	// Set up the shaders
 	assimpShader = new Shader("./assimpVertexShader.txt", "./assimpFragmentShader.txt", true);
@@ -287,7 +270,8 @@ void init()
 	glm::mat4 projection = glm::mat4(1.0f);
 
 	//model = glm::rotate(model, glm::radians(1.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+	camera->GetViewTransform();
+	view = camera->GetViewTransform();
 	projection = glm::perspective(glm::radians(60.0f), (float)Width / (float)Height, 0.1f, 100.0f);
 
 	myShader->SetUniformMatrix4fv("model", &model);
