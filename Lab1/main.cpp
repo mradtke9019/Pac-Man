@@ -56,20 +56,24 @@ MESH TO LOAD
 // similar functions exist for mouse control etc
 void keyPress(unsigned char key, int x, int y)
 {
-	GLfloat translateScale = 0.1f;
+	GLfloat translateScale = 0.5f;
 	switch (key) {
 
 	case'w':
 		CameraTranslateZ -= translateScale;
+		camera->CameraTranslateZ -= translateScale;
 		break;
 	case's':
 		CameraTranslateZ += translateScale;
+		camera->CameraTranslateZ += translateScale;
 		break;
 	case'a':
 		CameraTranslateX -= translateScale;
+		camera->CameraTranslateX -= translateScale;
 		break;
 	case'd':
 		CameraTranslateX += translateScale;
+		camera->CameraTranslateX += translateScale;
 		break;
 	case 'n':
 		RotateX -= 0.1f;
@@ -89,11 +93,23 @@ void keyPress(unsigned char key, int x, int y)
 	case 'p':
 		RotateZ += 0.1f;
 		break;
+	case 'q':
+		camera->RotateYaw(-10.0f);
+		break;
+	case 'e':
+		camera->RotateYaw(10.0f);
+		break;
 	}
 
 	// we must call these to redraw the scene after we make any changes 
 	glutPostRedisplay();
 }
+
+glm::mat4 GetProjection()
+{
+	return glm::perspective(glm::radians(60.0f), (float)Width / (float)Height, 0.1f, 100.0f);
+}
+
 
 void display()
 {
@@ -101,43 +117,46 @@ void display()
 	auto timeValue = glutGet(GLUT_ELAPSED_TIME);
 	myShader->SetUniform1f("time", timeValue);
 
-	camera->GetViewTransform();
-	glm::mat4 view = camera->GetViewTransform();
-
-	glm::mat4 projection = glm::perspective(glm::radians(60.0f), (float)Width / (float)Height, 0.1f, 100.0f);
-
 	float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 	assimpShader->SetUniform1f("rand", r);
 
+	glm::mat4 view = camera->GetViewTransform();
+	glm::mat4 projection = GetProjection();
 
-
+	Shader* s;
 	glutPostRedisplay();
 	// NB: Make the call to draw the geometry in the currently activated vertex buffer. This is where the GPU starts to work!
 	//glDrawArrays(GL_TRIANGLES, 0, 24);
 	for (int i = 0; i < myObjects.size(); i++) {
-	glm::mat4 model = glm::mat4(1.0f);
+
+		s = myObjects.at(i).GetShader();
+		glm::mat4 model = glm::mat4(1.0f);
 		model =
 			glm::rotate(glm::mat4(1.0f), RotateZ, glm::vec3(0.0f, 0.0f, 1.0f)) *
 			glm::rotate(glm::mat4(1.0f), RotateY, glm::vec3(0.0f, 1.0f, 0.0f)) *
 			glm::rotate(glm::mat4(1.0f), RotateX, glm::vec3(1.0f, 0.0f, 0.0f));
 		myObjects.at(i).SetModelTransform(myObjects.at(i).GetModelTransform() * model);
+		s->SetUniformMatrix4fv("view", &view);
+		s->SetUniformMatrix4fv("projection", &projection);
 		myObjects.at(i).Draw();
 	}
 
 	for (int i = 0; i < meshes.size(); i++) {
 		glm::mat4 model = glm::mat4(1.0f);
-		meshes.at(i).GetShader()->SetUniformMatrix4fv("model", &model);
-		meshes.at(i).GetShader()->SetUniformMatrix4fv("view", &view);
-		meshes.at(i).GetShader()->SetUniformMatrix4fv("projection", &projection);
+		s = meshes.at(i).GetShader();
+		s->SetUniformMatrix4fv("model", &model);
+		s->SetUniformMatrix4fv("view", &view);
+		s->SetUniformMatrix4fv("projection", &projection);
 		meshes.at(i).Draw();
 	}
 
 	for (int i = 0; i < myModels.size(); i++)
 	{
 		glm::mat4 m = myModels.at(i).GetModelTransform();
-		myModels.at(i).GetShader()->SetUniformMatrix4fv("model", &m);
-		myModels.at(i).GetShader()->SetUniformMatrix4fv("view", &view);
-		myModels.at(i).GetShader()->SetUniformMatrix4fv("projection", &projection);
+		s = myModels.at(i).GetShader();
+		s->SetUniformMatrix4fv("model", &m);
+		s->SetUniformMatrix4fv("view", &view);
+		s->SetUniformMatrix4fv("projection", &projection);
 		myModels.at(i).Draw();
 	}
 
@@ -218,12 +237,32 @@ void init()
 
 	camera = new Camera();
 
-	// Set up the shaders	// Set up the shaders
+	// Set up the shaders
 	assimpShader = new Shader("./assimpVertexShader.txt", "./assimpFragmentShader.txt", true);
 	myShader = new Shader("./vertexshader.txt", "./fragmentshader.txt", true);
 
 
 
+	auto timeValue = glutGet(GLUT_ELAPSED_TIME);
+	myShader->SetUniform1f("time", timeValue);
+
+	float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+	assimpShader->SetUniform1f("rand", r);
+
+	glm::mat4 view = glm::mat4(1.0f);
+	glm::mat4 projection = glm::mat4(1.0f);
+
+	//model = glm::rotate(model, glm::radians(1.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	view = camera->GetViewTransform();
+	projection = GetProjection();
+
+	myShader->SetUniformMatrix4fv("view", &view);
+	myShader->SetUniformMatrix4fv("projection", &projection);
+
+	assimpShader->SetUniformMatrix4fv("view", &view);
+	assimpShader->SetUniformMatrix4fv("projection", &projection);
+
+	// Create some objects and meshes
 	myObjects.push_back(Object(diamondVerts, diamondColors, 24, myShader, glm::vec3(-2.0f, 0.0f, 0.0f)));
 	myObjects.push_back(Object(diamondVerts, diamondColors, 24, myShader, glm::vec3(2.0f, 0.0f, 0.0f)));
 
@@ -239,49 +278,6 @@ void init()
 	//tree.SetModelTransform(glm::scale(glm::mat4(1.0f), glm::vec3(0.1f, 0.1f, 0.1f)));
 	//myModels.push_back(knight);
 
-	Vertex v1 = Vertex();
-	v1.Position = glm::vec3(-1.0f, 0.0f, 0.0f);
-	Vertex v2 = Vertex();
-	v2.Position = glm::vec3(1.0f, 0.0f, 0.0f);
-	Vertex v3 = Vertex();
-	v3.Position = glm::vec3(0.0f, 1.0f, 0.0f);
-	std::vector<Vertex> vertices;
-	vertices.push_back(v1);
-	vertices.push_back(v2);
-	vertices.push_back(v3);
-	
-	std::vector<unsigned int> indices;
-	indices.push_back(0);
-	indices.push_back(1);
-	indices.push_back(2);
-	Mesh myMesh = Mesh(vertices, indices, (std::vector<Texture>)0, assimpShader);
-	meshes.push_back(myMesh);
-
-	auto timeValue = glutGet(GLUT_ELAPSED_TIME);
-	myShader->SetUniform1f("time", timeValue);
-
-
-	float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-	assimpShader->SetUniform1f("rand", r);
-
-
-	glm::mat4 model = glm::mat4(1.0f);
-	glm::mat4 view = glm::mat4(1.0f);
-	glm::mat4 projection = glm::mat4(1.0f);
-
-	//model = glm::rotate(model, glm::radians(1.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-	camera->GetViewTransform();
-	view = camera->GetViewTransform();
-	projection = glm::perspective(glm::radians(60.0f), (float)Width / (float)Height, 0.1f, 100.0f);
-
-	myShader->SetUniformMatrix4fv("model", &model);
-	myShader->SetUniformMatrix4fv("view", &view);
-	myShader->SetUniformMatrix4fv("projection", &projection);
-
-
-	assimpShader->SetUniformMatrix4fv("model", &model);
-	assimpShader->SetUniformMatrix4fv("view", &view);
-	assimpShader->SetUniformMatrix4fv("projection", &projection);
 }
 
 

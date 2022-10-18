@@ -22,27 +22,25 @@ private:
 	float yaw;
 	float pitch;
 	float roll;
+
 	glm::vec3 Position;
-	glm::vec3 Up;
 	glm::vec3 Target;
+	glm::vec3 Up;
+
+	glm::vec3 Direction;
 
 	glm::mat4 View;
-	glm::mat4 Projection;
 
+public:
 	GLfloat CameraTranslateX;
 	GLfloat CameraTranslateY;
 	GLfloat CameraTranslateZ;
 
-	int WindowWidth;
-	int WindowHeight;
-	float FieldOfView;
-
-	float CameraMinRange;
-	float CameraMaxRange;
-
-	void CalculateViewTransform();
-public:
 	Camera();
+
+	void CalculateDirection();
+
+	void CalculateView();
 
 	glm::mat4 FixedViewCamera();
 
@@ -59,5 +57,11 @@ public:
 	glm::vec3 GetTarget();
 	
 	void SetTarget(glm::vec3);
+
+	void RotatePitch(float);
+
+	void RotateYaw(float);
+
+	void RotateRoll(float);
 };
 

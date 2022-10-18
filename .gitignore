@@ -253,3 +253,7 @@ paket-files/
 
 !knight.obj
 !Lowpoly_tree_sample.obj
+
+
+!./Lab1/Debug/Assimp32.dll
+!Assimp.dll
