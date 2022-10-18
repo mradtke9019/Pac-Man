@@ -33,16 +33,6 @@ void Mesh::setupMesh()
 	glBindVertexArray(0);
 }
 
-
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures)
-{
-	this->vertices = vertices;
-	this->indices = indices;
-	this->textures = textures;
-
-	setupMesh();
-}
-
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures, Shader* shader)
 {
 	this->shader = shader;

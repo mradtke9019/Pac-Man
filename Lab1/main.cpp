@@ -12,6 +12,8 @@
 #include "Shader.h"
 #include "Object.h"
 #include <vector>
+#include "Model.h"
+#include <random>
 
 // Macro for indexing vertex buffer
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
@@ -21,8 +23,11 @@
 using namespace std;
 
 Shader* myShader;
+Shader* assimpShader;
 vector<Object> myObjects;
 vector<Mesh> meshes;
+
+vector<Model> myModels;
 
 GLfloat RotateZ = 0.0f;
 GLfloat RotateY = 0.0f;
@@ -31,6 +36,17 @@ GLfloat RotateX = 0.0f;
 GLfloat CameraTranslateX = 0.0f;
 GLfloat CameraTranslateY = 0.0f;
 GLfloat CameraTranslateZ = 0.0f;
+
+
+/*----------------------------------------------------------------------------
+MESH TO LOAD
+----------------------------------------------------------------------------*/
+// this mesh is a dae file format but you should be able to use any other format too, obj is typically what is used
+// put the mesh in your project directory, or provide a filepath for it here
+#define MESH_NAME "monkeyhead_smooth.dae"
+/*----------------------------------------------------------------------------
+----------------------------------------------------------------------------*/
+
 
 // function to allow keyboard control
 // it's called a callback function and must be registerd in main() using glutKeyboardFunc();
@@ -85,7 +101,7 @@ void display()
 
 	// The position of our camera in 3d space
 	glm::vec3 cameraTranslation = glm::vec3(CameraTranslateX, CameraTranslateY, CameraTranslateZ);
-	glm::vec3 cameraPos = glm::vec3(0.0f,3.0f,3.0f) + cameraTranslation;//glm::vec3(0.0f, 3.0f, 3.0f);
+	glm::vec3 cameraPos = glm::vec3(0.0f,5.0f,5.0f) + cameraTranslation;//glm::vec3(0.0f, 3.0f, 3.0f);
 	glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f) + cameraTranslation;
 
 	glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
@@ -96,14 +112,9 @@ void display()
 
 
 
-	glm::mat4 model = glm::mat4(1.0f);
 	glm::mat4 view = glm::mat4(1.0f);
 	glm::mat4 projection = glm::mat4(1.0f);
 	// glm::scale( X, vec3 ) = X * glm::scale( Identity, vec3 )
-	model = 
-		glm::rotate(glm::mat4(1.0f), RotateZ, glm::vec3(0.0f, 0.0f, 1.0f)) * 
-		glm::rotate(glm::mat4(1.0f), RotateY, glm::vec3(0.0f, 1.0f, 0.0f)) * 
-		glm::rotate(glm::mat4(1.0f), RotateX, glm::vec3(1.0f, 0.0f, 0.0f));
 	
 
 	//view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
@@ -112,29 +123,41 @@ void display()
 		cameraUp);
 	projection = glm::perspective(glm::radians(60.0f), (float)Width / (float)Height, 0.1f, 100.0f);
 
+	float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+	assimpShader->SetUniform1f("rand", r);
 
 
-	//myShader->SetUniformMatrix4fv("model", &model);
-	myShader->SetUniformMatrix4fv("view", &view);
-	myShader->SetUniformMatrix4fv("projection", &projection);
-
-	glm::mat4 rotateZ = glm::mat4(1.0f);
 
 	glutPostRedisplay();
 	// NB: Make the call to draw the geometry in the currently activated vertex buffer. This is where the GPU starts to work!
 	//glDrawArrays(GL_TRIANGLES, 0, 24);
 	for (int i = 0; i < myObjects.size(); i++) {
+	glm::mat4 model = glm::mat4(1.0f);
+		model =
+			glm::rotate(glm::mat4(1.0f), RotateZ, glm::vec3(0.0f, 0.0f, 1.0f)) *
+			glm::rotate(glm::mat4(1.0f), RotateY, glm::vec3(0.0f, 1.0f, 0.0f)) *
+			glm::rotate(glm::mat4(1.0f), RotateX, glm::vec3(1.0f, 0.0f, 0.0f));
 		myObjects.at(i).SetModelTransform(myObjects.at(i).GetModelTransform() * model);
 		myObjects.at(i).Draw();
 	}
 
 	for (int i = 0; i < meshes.size(); i++) {
-
+		glm::mat4 model = glm::mat4(1.0f);
 		meshes.at(i).GetShader()->SetUniformMatrix4fv("model", &model);
 		meshes.at(i).GetShader()->SetUniformMatrix4fv("view", &view);
 		meshes.at(i).GetShader()->SetUniformMatrix4fv("projection", &projection);
 		meshes.at(i).Draw();
 	}
+
+	for (int i = 0; i < myModels.size(); i++)
+	{
+		glm::mat4 m = myModels.at(i).GetModelTransform();
+		myModels.at(i).GetShader()->SetUniformMatrix4fv("model", &m);
+		myModels.at(i).GetShader()->SetUniformMatrix4fv("view", &view);
+		myModels.at(i).GetShader()->SetUniformMatrix4fv("projection", &projection);
+		myModels.at(i).Draw();
+	}
+
     glutSwapBuffers();
 }
 
@@ -210,16 +233,28 @@ void init()
 		0.0f, 0.0f, 1.0f, 1.0f,
 	};
 
-	// Set up the shaders
+
+
+	// Set up the shaders	// Set up the shaders
+	assimpShader = new Shader("./assimpVertexShader.txt", "./assimpFragmentShader.txt", true);
 	myShader = new Shader("./vertexshader.txt", "./fragmentshader.txt", true);
+
+
+
 	myObjects.push_back(Object(diamondVerts, diamondColors, 24, myShader, glm::vec3(-2.0f, 0.0f, 0.0f)));
 	myObjects.push_back(Object(diamondVerts, diamondColors, 24, myShader, glm::vec3(2.0f, 0.0f, 0.0f)));
 
 
 
+	//Object meshObject = Object("./monkeyhead_smooth.dae", assimpShader);
+	Model tree = Model("./Lowpoly_tree_sample.obj", assimpShader);
+	tree.SetModelTransform(glm::scale(glm::mat4(1.0f), glm::vec3(0.1f, 0.1f, 0.1f)));
+	myModels.push_back(tree);
+	
 
-	// Set up the shaders
-	Shader* assimpShader = new Shader("./assimpVertexShader.txt", "./assimpFragmentShader.txt", true);
+	//Model knight = Model("./knight.obj", assimpShader);
+	//tree.SetModelTransform(glm::scale(glm::mat4(1.0f), glm::vec3(0.1f, 0.1f, 0.1f)));
+	//myModels.push_back(knight);
 
 	Vertex v1 = Vertex();
 	v1.Position = glm::vec3(-1.0f, 0.0f, 0.0f);
@@ -241,6 +276,10 @@ void init()
 
 	auto timeValue = glutGet(GLUT_ELAPSED_TIME);
 	myShader->SetUniform1f("time", timeValue);
+
+
+	float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+	assimpShader->SetUniform1f("rand", r);
 
 
 	glm::mat4 model = glm::mat4(1.0f);
