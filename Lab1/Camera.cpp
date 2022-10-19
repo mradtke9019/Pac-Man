@@ -52,7 +52,7 @@ void Camera::CalculateView()
 	glm::vec3 cameraTranslation = glm::vec3(CameraTranslateX, CameraTranslateY, CameraTranslateZ);
 	Position = glm::vec3(0.0f, 3.0f, 3.0f) + cameraTranslation;//glm::vec3(0.0f, 3.0f, 3.0f);
 
-	View = glm::lookAt(Position, Direction, Up);
+	View = glm::lookAt(Position, Position + Direction, Up);
 }
 
 glm::mat4 Camera::FixedViewCamera()
