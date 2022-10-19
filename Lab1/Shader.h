@@ -98,6 +98,8 @@ private:
 public:
     Shader(const char* vertexShaderPath, const char* fragmentShaderPath, bool useProgram);
 
+    Shader(const char* vertexShaderPath, const char* fragmentShaderPath);
+
     GLuint GetAttribLocation(std::string shaderAttribute);
 
     std::string GetVertexShaderText();

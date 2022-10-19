@@ -50,7 +50,7 @@ void Camera::CalculateView()
 	Up = glm::cross(Direction, Right);
 
 	glm::vec3 cameraTranslation = glm::vec3(CameraTranslateX, CameraTranslateY, CameraTranslateZ);
-	Position = glm::vec3(0.0f, 3.0f, 3.0f) + cameraTranslation;//glm::vec3(0.0f, 3.0f, 3.0f);
+	Position = glm::vec3(0.0f, 3.0f, 6.0f) + cameraTranslation;//glm::vec3(0.0f, 3.0f, 3.0f);
 
 	View = glm::lookAt(Position, Position + Direction, Up);
 }

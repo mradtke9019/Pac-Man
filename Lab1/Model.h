@@ -16,6 +16,7 @@ private:
     std::vector<Mesh> meshes;
     std::string directory;
     glm::mat4 ModelTransform;
+    glm::vec3 Position;
 
     void LoadModel(std::string path)
     {
@@ -119,7 +120,7 @@ private:
         return textures;
     }
 public:
-    Model(std::string path, Shader* Shader);
+    Model(std::string path, glm::vec3, Shader* Shader);
     void Draw();
     void Draw(Shader* shader);
     Shader* GetShader();

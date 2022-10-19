@@ -13,6 +13,13 @@ Shader::Shader(const char* vertexShaderPath, const char* fragmentShaderPath, boo
 	}
 }
 
+Shader::Shader(const char* vertexShaderPath, const char* fragmentShaderPath)
+{
+	VertexShaderText = ReadFile(vertexShaderPath);
+	FragmentShaderText = ReadFile(fragmentShaderPath);
+	ShaderProgramID = CompileShaders(VertexShaderText, FragmentShaderText);
+}
+
 GLuint Shader::GetAttribLocation(std::string shaderAttribute)
 {
 	int id = glGetAttribLocation(GetShaderProgramID(), shaderAttribute.c_str());

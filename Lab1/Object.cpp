@@ -52,7 +52,7 @@ void Object::Draw()
 	shader->Use();
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	shader->SetUniformMatrix4fv("model", &modelTransform);
 	linkCurrentBuffertoShader();
+	shader->SetUniformMatrix4fv("model", &modelTransform);
 	glDrawArrays(GL_TRIANGLES, 0, NumVertices);
 }

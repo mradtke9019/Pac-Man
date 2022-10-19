@@ -117,14 +117,24 @@ void display()
 	auto timeValue = glutGet(GLUT_ELAPSED_TIME);
 	myShader->SetUniform1f("time", timeValue);
 
-	float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-	assimpShader->SetUniform1f("rand", r);
+	//float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+	//assimpShader->SetUniform1f("rand", r);
 
 	glm::mat4 view = camera->GetViewTransform();
 	glm::mat4 projection = GetProjection();
 
 	Shader* s;
 	glutPostRedisplay();
+
+	for (int i = 0; i < myModels.size(); i++)
+	{
+		//glm::mat4 m = myModels.at(i).GetModelTransform();
+		glm::mat4 m = glm::mat4(1.0f);
+		s = myModels.at(i).GetShader();
+		s->SetUniformMatrix4fv("view", &view);
+		s->SetUniformMatrix4fv("projection", &projection);
+		myModels.at(i).Draw();
+	}
 	// NB: Make the call to draw the geometry in the currently activated vertex buffer. This is where the GPU starts to work!
 	//glDrawArrays(GL_TRIANGLES, 0, 24);
 	for (int i = 0; i < myObjects.size(); i++) {
@@ -141,24 +151,7 @@ void display()
 		myObjects.at(i).Draw();
 	}
 
-	for (int i = 0; i < meshes.size(); i++) {
-		glm::mat4 model = glm::mat4(1.0f);
-		s = meshes.at(i).GetShader();
-		s->SetUniformMatrix4fv("model", &model);
-		s->SetUniformMatrix4fv("view", &view);
-		s->SetUniformMatrix4fv("projection", &projection);
-		meshes.at(i).Draw();
-	}
 
-	for (int i = 0; i < myModels.size(); i++)
-	{
-		glm::mat4 m = myModels.at(i).GetModelTransform();
-		s = myModels.at(i).GetShader();
-		s->SetUniformMatrix4fv("model", &m);
-		s->SetUniformMatrix4fv("view", &view);
-		s->SetUniformMatrix4fv("projection", &projection);
-		myModels.at(i).Draw();
-	}
 
     glutSwapBuffers();
 }
@@ -238,8 +231,8 @@ void init()
 	camera = new Camera();
 
 	// Set up the shaders
-	assimpShader = new Shader("./assimpVertexShader.txt", "./assimpFragmentShader.txt", true);
-	myShader = new Shader("./vertexshader.txt", "./fragmentshader.txt", true);
+	assimpShader = new Shader("./assimpVertexShader.txt", "./assimpFragmentShader.txt");
+	myShader = new Shader("./vertexshader.txt", "./fragmentshader.txt");
 
 
 
@@ -269,8 +262,8 @@ void init()
 
 
 	//Object meshObject = Object("./monkeyhead_smooth.dae", assimpShader);
-	Model tree = Model("./Lowpoly_tree_sample.obj", assimpShader);
-	tree.SetModelTransform(glm::scale(glm::mat4(1.0f), glm::vec3(0.1f, 0.1f, 0.1f)));
+	Model tree = Model("./Lowpoly_tree_sample.obj", glm::vec3(0.0f, 0.0f, 0.0f), assimpShader);
+	//tree.SetModelTransform(glm::scale(glm::mat4(1.0f), glm::vec3(0.1f, 0.1f, 0.1f)));
 	myModels.push_back(tree);
 	
 
