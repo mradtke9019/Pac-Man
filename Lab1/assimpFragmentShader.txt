@@ -12,6 +12,6 @@ void main()
 {
 	
 	FragColor = color;
-	FragColor = vec4(rand * color.r, 1 - rand *  color.g, rand * rand * color.b, 1.0f);
+	//FragColor = vec4(rand * color.r, 1 - rand *  color.g, rand * rand * color.b, 1.0f);
 	//FragColor = vec4(1.0,0.0,0.0,1.0);
 }

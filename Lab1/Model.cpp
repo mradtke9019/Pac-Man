@@ -8,6 +8,7 @@ Model::Model(std::string path, Shader* Shader)
 
 void Model::Draw()
 {
+	shader->SetUniformMatrix4fv("model", &ModelTransform);
 	for (int i = 0; i < meshes.size(); i++)
 	{
 		meshes.at(i).Draw();
