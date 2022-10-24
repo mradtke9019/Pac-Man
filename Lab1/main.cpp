@@ -132,6 +132,8 @@ void display()
 			glm::rotate(glm::mat4(1.0f), RotateZ, glm::vec3(0.0f, 0.0f, 1.0f)) *
 			glm::rotate(glm::mat4(1.0f), RotateY, glm::vec3(0.0f, 1.0f, 0.0f)) *
 			glm::rotate(glm::mat4(1.0f), RotateX, glm::vec3(1.0f, 0.0f, 0.0f));
+		myShader->SetUniformMatrix4fv("view", &view);
+		myShader->SetUniformMatrix4fv("projection", &projection);
 		myObjects.at(i).SetModelTransform(myObjects.at(i).GetModelTransform() * model);
 		myObjects.at(i).Draw();
 	}
