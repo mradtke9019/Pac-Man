@@ -15,6 +15,7 @@
 #include "Model.h"
 #include <random>
 #include "Camera.h"
+#include "FixedCamera.h"
 
 // Macro for indexing vertex buffer
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
@@ -27,7 +28,14 @@ Shader* myShader;
 Shader* assimpShader;
 vector<Object> myObjects;
 vector<Mesh> meshes;
-Camera* camera;
+
+ICamera* activeCamera;
+
+Camera* camera1;
+Camera* camera2;
+FixedCamera* camera3;
+
+int onCamera = 1;
 
 vector<Model> myModels;
 
@@ -61,20 +69,16 @@ void keyPress(unsigned char key, int x, int y)
 	switch (key) {
 
 	case'w':
-		CameraTranslateZ -= translateScale;
-		camera->CameraTranslateZ -= translateScale;
+		activeCamera->TranslateZ(-translateScale);
 		break;
 	case's':
-		CameraTranslateZ += translateScale;
-		camera->CameraTranslateZ += translateScale;
+		activeCamera->TranslateZ(translateScale);
 		break;
 	case'a':
-		CameraTranslateX -= translateScale;
-		camera->CameraTranslateX -= translateScale;
+		activeCamera->TranslateX(-translateScale);
 		break;
 	case'd':
-		CameraTranslateX += translateScale;
-		camera->CameraTranslateX += translateScale;
+		activeCamera->TranslateX(translateScale);
 		break;
 	case 'n':
 		RotateX -= 0.1f;
@@ -95,10 +99,19 @@ void keyPress(unsigned char key, int x, int y)
 		RotateZ += 0.1f;
 		break;
 	case 'q':
-		camera->RotateYaw(-10.0f);
+		activeCamera->RotateYaw(-10.0f);
 		break;
 	case 'e':
-		camera->RotateYaw(10.0f);
+		activeCamera->RotateYaw(10.0f);
+		break;
+	case '1':
+		activeCamera = camera1;
+		break;
+	case '2':
+		activeCamera = camera2;
+		break;
+	case '3':
+		activeCamera = camera3;
 		break;
 	}
 
@@ -112,7 +125,9 @@ void display()
 	auto timeValue = glutGet(GLUT_ELAPSED_TIME);
 	myShader->SetUniform1f("time", timeValue);
 
-	glm::mat4 view = camera->GetViewTransform();
+
+
+	glm::mat4 view = activeCamera->GetViewTransform();
 	glm::mat4 projection = glm::perspective(glm::radians(60.0f), (float)Width / (float)Height, 0.1f, 100.0f);
 
 	float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
@@ -227,7 +242,11 @@ void init()
 		0.0f, 0.0f, 1.0f, 1.0f,
 	};
 
-	camera = new Camera();
+	camera1 = new Camera(glm::vec3(0.0f,3.0f,3.0f));
+	camera2 = new Camera(glm::vec3(0.0f, 10.0f, 10.0f));
+	camera3 = new FixedCamera(glm::vec3(0.0f, 40.0f, 40.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+	activeCamera = camera1;
 
 	// Set up the shaders	// Set up the shaders
 	assimpShader = new Shader("./assimpVertexShader.txt", "./assimpFragmentShader.txt", true);
@@ -278,9 +297,9 @@ void init()
 	glm::mat4 view = glm::mat4(1.0f);
 	glm::mat4 projection = glm::mat4(1.0f);
 
+
 	//model = glm::rotate(model, glm::radians(1.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-	camera->GetViewTransform();
-	view = camera->GetViewTransform();
+	view = activeCamera->GetViewTransform();
 	projection = glm::perspective(glm::radians(60.0f), (float)Width / (float)Height, 0.1f, 100.0f);
 
 	myShader->SetUniformMatrix4fv("view", &view);

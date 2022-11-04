@@ -1,7 +1,8 @@
 #pragma once
+
 #include "ICamera.h"
 
-class Camera : public ICamera
+class FreeCamera : public  ICamera
 {
 private:
 	float yaw;
@@ -21,8 +22,8 @@ public:
 	GLfloat CameraTranslateY;
 	GLfloat CameraTranslateZ;
 
-	Camera();
-	Camera(glm::vec3);
+	FreeCamera();
+	FreeCamera(glm::vec3);
 
 	glm::mat4 LookAt(glm::vec3, glm::vec3);
 
@@ -38,10 +39,6 @@ public:
 
 		return glm::lookAt(cameraPos, cameraTarget, cameraUp);
 	}
-
-	void TranslateX(float);
-	void TranslateY(float);
-	void TranslateZ(float);
 
 	void CalculateDirection();
 

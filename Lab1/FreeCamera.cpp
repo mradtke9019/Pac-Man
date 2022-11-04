@@ -1,6 +1,6 @@
-#include "Camera.h"
+#include "FreeCamera.h"
 
-Camera::Camera(glm::vec3 position)
+FreeCamera::FreeCamera(glm::vec3 position)
 	: pitch(0.0f), yaw(-90.0f), roll(0.0f)
 {
 
@@ -34,7 +34,7 @@ Camera::Camera(glm::vec3 position)
 	//View = glm::lookAt(Position, Direction, Up);
 };
 
-void Camera::CalculateDirection()
+void FreeCamera::CalculateDirection()
 {
 	Direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
 	Direction.y = sin(glm::radians(pitch));
@@ -42,14 +42,14 @@ void Camera::CalculateDirection()
 	Direction = glm::normalize(Direction);
 }
 
-glm::mat4 Camera::LookAt(glm::vec3 Target, glm::vec3 up)
+glm::mat4 FreeCamera::LookAt(glm::vec3 Target, glm::vec3 up)
 {
 	glm::vec3 cameraTranslation = glm::vec3(CameraTranslateX, CameraTranslateY, CameraTranslateZ);
 
 	return glm::lookAt(Position + cameraTranslation, Target, up);
 }
 
-void Camera::CalculateView()
+void FreeCamera::CalculateView()
 {
 	CalculateDirection();
 	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -62,45 +62,29 @@ void Camera::CalculateView()
 	View = glm::lookAt(Position, Position + Direction, Up);
 }
 
-glm::vec3 Camera::GetPosition()
+glm::vec3 FreeCamera::GetPosition()
 {
 	return Position;
 }
 
-glm::mat4 Camera::GetViewTransform()
+glm::mat4 FreeCamera::GetViewTransform()
 {
 	CalculateView();
 	return View;
 };
 
-void Camera::RotatePitch(float theta)
+void FreeCamera::RotatePitch(float theta)
 {
 	pitch += theta;
 	CalculateView();
 }
 
-void Camera::RotateYaw(float theta)
+void FreeCamera::RotateYaw(float theta)
 {
 	yaw += theta;
 	CalculateView();
-};
-void Camera::RotateRoll(float theta)
-{
-
-};
-
-
-void Camera::TranslateX(float x)
-{
-	CameraTranslateX += x;
-};
-
-void Camera::TranslateY(float y)
-{
-	CameraTranslateY += y;
 }
-
-void Camera::TranslateZ(float z)
+void FreeCamera::RotateRoll(float theta)
 {
-	CameraTranslateZ += z;
+
 }

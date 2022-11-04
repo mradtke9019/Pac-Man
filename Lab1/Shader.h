@@ -17,6 +17,7 @@ private:
     std::string VertexShaderText;
     std::string FragmentShaderText;
     GLuint ShaderProgramID;
+    bool debugShader;
 
     std::string ReadFile(const char* path)
     {
@@ -97,6 +98,10 @@ private:
 
 public:
     Shader(const char* vertexShaderPath, const char* fragmentShaderPath, bool useProgram);
+
+    void DebugOn();
+
+    void DebugOff();
 
     GLuint GetAttribLocation(std::string shaderAttribute);
 
