@@ -14,6 +14,8 @@ Model::Model(std::string path, glm::vec3 Position, Shader* Shader)
 
 void Model::Draw()
 {
+	shader->Use();
+	shader->SetUniformMatrix4fv("model", &ModelTransform);
 	for (int i = 0; i < meshes.size(); i++)
 	{
 		shader->SetUniformMatrix4fv("model", &ModelTransform);

@@ -146,6 +146,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="FixedCamera.cpp" />
+    <ClCompile Include="FreeCamera.cpp" />
     <ClCompile Include="LabObject.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh.cpp" />
@@ -166,6 +168,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="FixedCamera.h" />
+    <ClInclude Include="FreeCamera.h" />
+    <ClInclude Include="ICamera.h" />
     <ClInclude Include="LabObject.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />

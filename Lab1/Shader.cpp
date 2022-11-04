@@ -2,7 +2,7 @@
 
 
 Shader::Shader(const char* vertexShaderPath, const char* fragmentShaderPath, bool useProgram)
-	: ShaderProgramID(0)
+	: ShaderProgramID(0), debugShader(false)
 {
 	VertexShaderText = ReadFile(vertexShaderPath);
 	FragmentShaderText = ReadFile(fragmentShaderPath);
@@ -13,17 +13,21 @@ Shader::Shader(const char* vertexShaderPath, const char* fragmentShaderPath, boo
 	}
 }
 
-Shader::Shader(const char* vertexShaderPath, const char* fragmentShaderPath)
+
+void Shader::DebugOn()
 {
-	VertexShaderText = ReadFile(vertexShaderPath);
-	FragmentShaderText = ReadFile(fragmentShaderPath);
-	ShaderProgramID = CompileShaders(VertexShaderText, FragmentShaderText);
+	debugShader = true;
 }
+
+void Shader::DebugOff()
+{
+	debugShader = true;
+};
 
 GLuint Shader::GetAttribLocation(std::string shaderAttribute)
 {
 	int id = glGetAttribLocation(GetShaderProgramID(), shaderAttribute.c_str());
-	if (id < 0)
+	if (id < 0 && debugShader)
 	{
 		fprintf(stderr, "Error finding attrib '%s' in shader program id: '%i'\n", shaderAttribute.c_str(), ShaderProgramID);
 	}
@@ -52,7 +56,7 @@ void Shader::Use()
 GLuint Shader::GetUniformLocation(const char* uniform)
 {
 	int uniformId = glGetUniformLocation(ShaderProgramID, uniform);
-	if (uniformId < 0)
+	if (uniformId < 0 && debugShader)
 	{
 		fprintf(stderr, "Error finding uniform '%s' in shader program id: '%i'\n", uniform, ShaderProgramID);
 	}
@@ -62,7 +66,7 @@ GLuint Shader::GetUniformLocation(const char* uniform)
 void Shader::SetUniform1f(const char* uniform, float value)
 {
 	int uniformId = GetUniformLocation(uniform);
-	if (uniformId < 0)
+	if (uniformId < 0 && debugShader)
 	{
 		fprintf(stderr, "Error setting uniform '%s' in shader program id: '%i'\n", uniform, ShaderProgramID);
 	}
@@ -72,7 +76,7 @@ void Shader::SetUniform1f(const char* uniform, float value)
 GLuint Shader::GetUniformMatrix4fv(const char* mat)
 {
 	int uniformId = glGetUniformLocation(ShaderProgramID, mat);
-	if (uniformId < 0)
+	if (uniformId < 0 && debugShader)
 	{
 		fprintf(stderr, "Error finding uniform matrix '%s' in shader program id: '%i'\n", mat, ShaderProgramID);
 	}
@@ -82,7 +86,7 @@ GLuint Shader::GetUniformMatrix4fv(const char* mat)
 void Shader::SetUniformMatrix44fv(const char* mat, glm::mat4x4* matrix)
 {
 	int id = GetUniformMatrix4fv(mat);
-	if (id < 0) {
+	if (id < 0 && debugShader) {
 		fprintf(stderr, "Unable to set uniform matrix '%s' in shader program id: '%i'\n", mat, ShaderProgramID);
 	}
 	//void glUniformMatrix4fv(	GLint location, GLsizei count, GLboolean transpose, const GLfloat* value);
@@ -92,7 +96,7 @@ void Shader::SetUniformMatrix44fv(const char* mat, glm::mat4x4* matrix)
 void Shader::SetUniformMatrix4fv(const char* mat, glm::mat4* matrix)
 {
 	int id = GetUniformMatrix4fv(mat);
-	if (id < 0) {
+	if (id < 0 && debugShader) {
 		fprintf(stderr, "Unable to set uniform matrix '%s' in shader program id: '%i'\n", mat, ShaderProgramID);
 	}
 	//void glUniformMatrix4fv(	GLint location, GLsizei count, GLboolean transpose, const GLfloat* value);
