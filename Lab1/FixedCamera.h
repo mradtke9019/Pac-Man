@@ -11,7 +11,9 @@ private:
 	glm::mat4 View;
 
 public:
-
+	///
+	/// Do work
+	///
 	FixedCamera(glm::vec3, glm::vec3, glm::vec3);
 
 	glm::mat4 GetViewTransform();

@@ -16,6 +16,7 @@
 #include <random>
 #include "Camera.h"
 #include "FixedCamera.h"
+#include "Player.h"
 
 // Macro for indexing vertex buffer
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
@@ -40,6 +41,8 @@ int onCamera = 1;
 Model* orbit;
 Model* ghost;
 vector<Model> myModels;
+
+Player* player;
 
 GLfloat RotateZ = 0.0f;
 GLfloat RotateY = 0.0f;
@@ -67,16 +70,20 @@ void keyPress(unsigned char key, int x, int y)
 	switch (key) {
 
 	case'w':
-		activeCamera->TranslateZ(-translateScale);
+		//activeCamera->TranslateZ(-translateScale);
+		player->MoveUp(translateScale);
 		break;
 	case's':
-		activeCamera->TranslateZ(translateScale);
+		//activeCamera->TranslateZ(translateScale);
+		player->MoveDown(translateScale);
 		break;
 	case'a':
-		activeCamera->TranslateX(-translateScale);
+		//activeCamera->TranslateX(-translateScale);
+		player->MoveLeft(translateScale);
 		break;
 	case'd':
-		activeCamera->TranslateX(translateScale);
+		//activeCamera->TranslateX(translateScale);
+		player->MoveRight(translateScale);
 		break;
 	case 'n':
 		RotateX -= 0.1f;
@@ -164,6 +171,8 @@ void display()
 	ghost->SetModelTransform(glm::mat4(1.0f));
 	ghost->Draw();
 
+	player->Draw();
+
 	//for (int i = 0; i < meshes.size(); i++) 
 	//{
 	//	meshes.at(i).Draw();
@@ -250,7 +259,8 @@ void init()
 
 	camera1 = new Camera(glm::vec3(0.0f,3.0f,3.0f));
 	camera2 = new Camera(glm::vec3(0.0f, 10.0f, 10.0f));
-	camera3 = new FixedCamera(glm::vec3(0.0f, 40.0f, 40.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	// Camera with arial view looking straight down at the origin
+	camera3 = new FixedCamera(glm::vec3(0.0f, 40.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
 
 	activeCamera = camera1;
 
@@ -313,6 +323,8 @@ void init()
 
 	assimpShader->SetUniformMatrix4fv("view", &view);
 	assimpShader->SetUniformMatrix4fv("projection", &projection);
+
+	player = new Player(glm::vec3(0.0f, 0.0f, 0.0f), assimpShader);
 }
 
 
