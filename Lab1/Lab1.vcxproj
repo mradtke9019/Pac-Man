@@ -148,7 +148,6 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="FixedCamera.cpp" />
     <ClCompile Include="FreeCamera.cpp" />
-    <ClCompile Include="LabObject.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
@@ -171,7 +170,6 @@
     <ClInclude Include="FixedCamera.h" />
     <ClInclude Include="FreeCamera.h" />
     <ClInclude Include="ICamera.h" />
-    <ClInclude Include="LabObject.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="Object.h" />
@@ -199,6 +197,21 @@
   <ItemGroup>
     <CopyFileToFolders Include="armor.jpg" />
     <CopyFileToFolders Include="gen.face.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="Pacman.obj">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="Ghost.obj">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="Ghost.mtl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

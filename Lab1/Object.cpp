@@ -20,7 +20,7 @@ Object::Object(glm::vec3 vertices[], glm::vec4 colors[], int numVertices, Shader
 	modelTransform = glm::translate(glm::mat4(1.0f), position);
 }
 
-Object::Object(std::string objectPath, Shader* Shader) 
+Object::Object(std::string objectPath, Shader* Shader)
 	: VBO(0), VAO(0), NumVertices(0), NumTriangles(0), shader(0)
 {
 	shader = Shader;
@@ -52,7 +52,7 @@ void Object::Draw()
 	shader->Use();
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	linkCurrentBuffertoShader();
 	shader->SetUniformMatrix4fv("model", &modelTransform);
+	linkCurrentBuffertoShader();
 	glDrawArrays(GL_TRIANGLES, 0, NumVertices);
 }

@@ -37,15 +37,13 @@ FixedCamera* camera3;
 
 int onCamera = 1;
 
+Model* orbit;
+Model* ghost;
 vector<Model> myModels;
 
 GLfloat RotateZ = 0.0f;
 GLfloat RotateY = 0.0f;
 GLfloat RotateX = 0.0f;
-
-GLfloat CameraTranslateX = 0.0f;
-GLfloat CameraTranslateY = 0.0f;
-GLfloat CameraTranslateZ = 0.0f;
 
 
 /*----------------------------------------------------------------------------
@@ -155,17 +153,25 @@ void display()
 
 
 	glutPostRedisplay();
+	float rotation = glm::radians(timeValue * 0.10f);
+	glm::mat4 orbitTransform = glm::rotate(glm::mat4(1.0f), rotation, glm::vec3(0.0f, 1.0f, 0.0f)) *
+		glm::translate(glm::mat4(1.0f), glm::vec3(5.0f, 0.0f, 0.0f)) *
+		glm::rotate(glm::mat4(1.0f), rotation + glm::radians(2.0f * glm::pi<float>()), glm::vec3(0.0f, 1.0f, 0.0f))
+		;
+	orbit->SetModelTransform(orbitTransform);
+	orbit->Draw();
 
-	for (int i = 0; i < meshes.size(); i++) 
-	{
-		meshes.at(i).Draw();
-	}
+	ghost->SetModelTransform(glm::mat4(1.0f));
+	ghost->Draw();
+
+	//for (int i = 0; i < meshes.size(); i++) 
+	//{
+	//	meshes.at(i).Draw();
+	//}
 	for (int i = 0; i < myModels.size(); i++)
 	{
 		myModels.at(i).Draw();
 	}
-
-
 
     glutSwapBuffers();
 }
@@ -257,17 +263,16 @@ void init()
 	myObjects.push_back(Object(diamondVerts, diamondColors, 24, myShader, glm::vec3(-2.0f, 0.0f, 0.0f)));
 	myObjects.push_back(Object(diamondVerts, diamondColors, 24, myShader, glm::vec3(2.0f, 0.0f, 0.0f)));
 
+	orbit = new Model("./Pacman.obj", glm::vec3(0.0f, 0.0f, 0.0f), assimpShader);
 
+	ghost = new Model("./Ghost.obj", glm::vec3(0.0f, 0.0f, 0.0f), assimpShader);
+	ghost->SetModelTransform(glm::mat4(1.0f));
 
 	//Object meshObject = Object("./monkeyhead_smooth.dae", assimpShader);
-	Model tree = Model("./Lowpoly_tree_sample.obj", assimpShader);
+	Model tree = Model("./Lowpoly_tree_sample.obj", glm::vec3(0.0f, 0.0f, 0.0f), assimpShader);
 	tree.SetModelTransform(glm::scale(glm::mat4(1.0f), glm::vec3(0.1f, 0.1f, 0.1f)));
 	myModels.push_back(tree);
 	
-
-	//Model knight = Model("./knight.obj", assimpShader);
-	//tree.SetModelTransform(glm::scale(glm::mat4(1.0f), glm::vec3(0.1f, 0.1f, 0.1f)));
-	//myModels.push_back(knight);
 
 	Vertex v1 = Vertex();
 	v1.Position = glm::vec3(-1.0f, 0.0f, 0.0f);
