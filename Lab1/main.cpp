@@ -25,6 +25,7 @@
 
 using namespace std;
 
+Shader* playerShader;
 Shader* myShader;
 Shader* assimpShader;
 vector<Object> myObjects;
@@ -118,6 +119,12 @@ void keyPress(unsigned char key, int x, int y)
 	case '3':
 		activeCamera = camera3;
 		break;
+	case '/':
+		player->GetModel()->SetShader(playerShader);
+		break;
+	case '.':
+		player->GetModel()->SetShader(assimpShader);
+		break;
 	}
 
 	// we must call these to redraw the scene after we make any changes 
@@ -130,6 +137,7 @@ void display()
 	auto timeValue = glutGet(GLUT_ELAPSED_TIME);
 	myShader->SetUniform1f("time", timeValue);
 
+	playerShader->SetUniform1f("time", timeValue);
 
 
 	glm::mat4 view = activeCamera->GetViewTransform();
@@ -144,19 +152,21 @@ void display()
 	myShader->SetUniformMatrix4fv("projection", &projection);
 
 
+	playerShader->SetUniformMatrix4fv("view", &view);
+	playerShader->SetUniformMatrix4fv("projection", &projection);
 	// NB: Make the call to draw the geometry in the currently activated vertex buffer. This is where the GPU starts to work!
 	//glDrawArrays(GL_TRIANGLES, 0, 24);
-	for (int i = 0; i < myObjects.size(); i++) {
-	glm::mat4 model = glm::mat4(1.0f);
-		model =
-			glm::rotate(glm::mat4(1.0f), RotateZ, glm::vec3(0.0f, 0.0f, 1.0f)) *
-			glm::rotate(glm::mat4(1.0f), RotateY, glm::vec3(0.0f, 1.0f, 0.0f)) *
-			glm::rotate(glm::mat4(1.0f), RotateX, glm::vec3(1.0f, 0.0f, 0.0f));
-		myShader->SetUniformMatrix4fv("view", &view);
-		myShader->SetUniformMatrix4fv("projection", &projection);
-		myObjects.at(i).SetModelTransform(myObjects.at(i).GetModelTransform() * model);
-		myObjects.at(i).Draw();
-	}
+	//for (int i = 0; i < myObjects.size(); i++) {
+	//glm::mat4 model = glm::mat4(1.0f);
+	//	model =
+	//		glm::rotate(glm::mat4(1.0f), RotateZ, glm::vec3(0.0f, 0.0f, 1.0f)) *
+	//		glm::rotate(glm::mat4(1.0f), RotateY, glm::vec3(0.0f, 1.0f, 0.0f)) *
+	//		glm::rotate(glm::mat4(1.0f), RotateX, glm::vec3(1.0f, 0.0f, 0.0f));
+	//	myShader->SetUniformMatrix4fv("view", &view);
+	//	myShader->SetUniformMatrix4fv("projection", &projection);
+	//	myObjects.at(i).SetModelTransform(myObjects.at(i).GetModelTransform() * model);
+	//	myObjects.at(i).Draw();
+	//}
 
 
 	glutPostRedisplay();
@@ -267,7 +277,7 @@ void init()
 	// Set up the shaders	// Set up the shaders
 	assimpShader = new Shader("./assimpVertexShader.txt", "./assimpFragmentShader.txt", true);
 	myShader = new Shader("./vertexshader.txt", "./fragmentshader.txt", true);
-
+	playerShader = new Shader("./playerVS.txt", "./playerFS.txt", false);
 
 
 	myObjects.push_back(Object(diamondVerts, diamondColors, 24, myShader, glm::vec3(-2.0f, 0.0f, 0.0f)));
@@ -323,6 +333,10 @@ void init()
 
 	assimpShader->SetUniformMatrix4fv("view", &view);
 	assimpShader->SetUniformMatrix4fv("projection", &projection);
+
+	playerShader->SetUniformMatrix4fv("view", &view);
+	playerShader->SetUniformMatrix4fv("projection", &projection);
+
 
 	player = new Player(glm::vec3(0.0f, 0.0f, 0.0f), assimpShader);
 }
