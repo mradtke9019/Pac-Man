@@ -19,6 +19,11 @@ void Player::Draw()
 	model->Draw();
 }
 
+glm::vec3 Player::GetPosition()
+{
+	return Position;
+}
+
 Model* Player::GetModel()
 {
 	return model;

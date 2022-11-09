@@ -148,6 +148,10 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="FixedCamera.cpp" />
     <ClCompile Include="FreeCamera.cpp" />
+    <ClCompile Include="Ghost.cpp" />
+    <CopyFileToFolders Include="ghostPanicVS.txt">
+      <FileType>Text</FileType>
+    </CopyFileToFolders>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
@@ -168,8 +172,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Character.h" />
+    <ClInclude Include="Direction.h" />
     <ClInclude Include="FixedCamera.h" />
     <ClInclude Include="FreeCamera.h" />
+    <ClInclude Include="Ghost.h" />
     <ClInclude Include="ICamera.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
@@ -214,6 +221,9 @@
     <CopyFileToFolders Include="Ghost.mtl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="ghostPanicFS.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -17,6 +17,7 @@
 #include "Camera.h"
 #include "FixedCamera.h"
 #include "Player.h"
+#include "Ghost.h"
 
 // Macro for indexing vertex buffer
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
@@ -27,6 +28,7 @@ using namespace std;
 
 Shader* myShader;
 Shader* assimpShader;
+Shader* ghostPanicShader;
 vector<Object> myObjects;
 vector<Mesh> meshes;
 
@@ -39,7 +41,7 @@ FixedCamera* camera3;
 int onCamera = 1;
 
 Model* orbit;
-Model* ghost;
+Ghost* ghost;
 vector<Model> myModels;
 
 Player* player;
@@ -118,6 +120,12 @@ void keyPress(unsigned char key, int x, int y)
 	case '3':
 		activeCamera = camera3;
 		break;
+	case '0':
+		ghost->GetModel()->SetShader(ghostPanicShader);
+		break;
+	case '-':
+		ghost->GetModel()->SetShader(assimpShader);
+		break;
 	}
 
 	// we must call these to redraw the scene after we make any changes 
@@ -143,7 +151,8 @@ void display()
 	myShader->SetUniformMatrix4fv("view", &view);
 	myShader->SetUniformMatrix4fv("projection", &projection);
 
-
+	ghostPanicShader->SetUniformMatrix4fv("view", &view);
+	ghostPanicShader->SetUniformMatrix4fv("projection", &projection);
 	// NB: Make the call to draw the geometry in the currently activated vertex buffer. This is where the GPU starts to work!
 	//glDrawArrays(GL_TRIANGLES, 0, 24);
 	for (int i = 0; i < myObjects.size(); i++) {
@@ -152,23 +161,20 @@ void display()
 			glm::rotate(glm::mat4(1.0f), RotateZ, glm::vec3(0.0f, 0.0f, 1.0f)) *
 			glm::rotate(glm::mat4(1.0f), RotateY, glm::vec3(0.0f, 1.0f, 0.0f)) *
 			glm::rotate(glm::mat4(1.0f), RotateX, glm::vec3(1.0f, 0.0f, 0.0f));
-		myShader->SetUniformMatrix4fv("view", &view);
-		myShader->SetUniformMatrix4fv("projection", &projection);
 		myObjects.at(i).SetModelTransform(myObjects.at(i).GetModelTransform() * model);
 		myObjects.at(i).Draw();
 	}
 
 
-	glutPostRedisplay();
-	float rotation = glm::radians(timeValue * 0.10f);
+	/*float rotation = glm::radians(timeValue * 0.10f);
 	glm::mat4 orbitTransform = glm::rotate(glm::mat4(1.0f), rotation, glm::vec3(0.0f, 1.0f, 0.0f)) *
 		glm::translate(glm::mat4(1.0f), glm::vec3(5.0f, 0.0f, 0.0f)) *
 		glm::rotate(glm::mat4(1.0f), rotation + glm::radians(2.0f * glm::pi<float>()), glm::vec3(0.0f, 1.0f, 0.0f))
 		;
 	orbit->SetModelTransform(orbitTransform);
-	orbit->Draw();
+	orbit->Draw();*/
 
-	ghost->SetModelTransform(glm::mat4(1.0f));
+	ghost->MoveTowardsPlayer(player, 0.1f);
 	ghost->Draw();
 
 	player->Draw();
@@ -182,6 +188,7 @@ void display()
 		myModels.at(i).Draw();
 	}
 
+	glutPostRedisplay();
     glutSwapBuffers();
 }
 
@@ -265,49 +272,22 @@ void init()
 	activeCamera = camera1;
 
 	// Set up the shaders	// Set up the shaders
-	assimpShader = new Shader("./assimpVertexShader.txt", "./assimpFragmentShader.txt", true);
-	myShader = new Shader("./vertexshader.txt", "./fragmentshader.txt", true);
+	assimpShader = new Shader("./assimpVertexShader.txt", "./assimpFragmentShader.txt", false);
+	myShader = new Shader("./vertexshader.txt", "./fragmentshader.txt", false);
+	ghostPanicShader = new Shader("./ghostPanicVS.txt", "./ghostPanicFS.txt", false);
+	ghostPanicShader->DebugOn();
 
-
-
-	myObjects.push_back(Object(diamondVerts, diamondColors, 24, myShader, glm::vec3(-2.0f, 0.0f, 0.0f)));
-	myObjects.push_back(Object(diamondVerts, diamondColors, 24, myShader, glm::vec3(2.0f, 0.0f, 0.0f)));
 
 	orbit = new Model("./Pacman.obj", glm::vec3(0.0f, 0.0f, 0.0f), assimpShader);
 
-	ghost = new Model("./Ghost.obj", glm::vec3(0.0f, 0.0f, 0.0f), assimpShader);
-	ghost->SetModelTransform(glm::mat4(1.0f));
-
-	//Object meshObject = Object("./monkeyhead_smooth.dae", assimpShader);
-	Model tree = Model("./Lowpoly_tree_sample.obj", glm::vec3(0.0f, 0.0f, 0.0f), assimpShader);
-	tree.SetModelTransform(glm::scale(glm::mat4(1.0f), glm::vec3(0.1f, 0.1f, 0.1f)));
-	myModels.push_back(tree);
-	
-
-	Vertex v1 = Vertex();
-	v1.Position = glm::vec3(-1.0f, 0.0f, 0.0f);
-	Vertex v2 = Vertex();
-	v2.Position = glm::vec3(1.0f, 0.0f, 0.0f);
-	Vertex v3 = Vertex();
-	v3.Position = glm::vec3(0.0f, 1.0f, 0.0f);
-	std::vector<Vertex> vertices;
-	vertices.push_back(v1);
-	vertices.push_back(v2);
-	vertices.push_back(v3);
-	
-	std::vector<unsigned int> indices;
-	indices.push_back(0);
-	indices.push_back(1);
-	indices.push_back(2);
-	Mesh myMesh = Mesh(vertices, indices, (std::vector<Texture>)0, assimpShader);
-	meshes.push_back(myMesh);
 
 	auto timeValue = glutGet(GLUT_ELAPSED_TIME);
 	myShader->SetUniform1f("time", timeValue);
-
+	ghostPanicShader->SetUniform1f("time", timeValue);
 
 	float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 	assimpShader->SetUniform1f("rand", r);
+	assimpShader->SetUniform1f("time", timeValue);
 
 	glm::mat4 view = glm::mat4(1.0f);
 	glm::mat4 projection = glm::mat4(1.0f);
@@ -324,7 +304,13 @@ void init()
 	assimpShader->SetUniformMatrix4fv("view", &view);
 	assimpShader->SetUniformMatrix4fv("projection", &projection);
 
-	player = new Player(glm::vec3(0.0f, 0.0f, 0.0f), assimpShader);
+	ghostPanicShader->SetUniformMatrix4fv("view", &view);
+	ghostPanicShader->SetUniformMatrix4fv("projection", &projection);
+	
+
+	player = new Player(glm::vec3(5.0f, 0.0f, 0.0f), assimpShader);
+
+	ghost = new Ghost(glm::vec3(0.0f, 0.0f, 0.0f), assimpShader);
 }
 
 
