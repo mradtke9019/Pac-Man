@@ -4,7 +4,6 @@ in vec3 vPosition;
 in vec3 vNormal;
 in vec2 vTexture;
 in vec4 vColor;
-uniform float time;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;

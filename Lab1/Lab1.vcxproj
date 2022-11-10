@@ -149,9 +149,6 @@
     <ClCompile Include="FixedCamera.cpp" />
     <ClCompile Include="FreeCamera.cpp" />
     <ClCompile Include="Ghost.cpp" />
-    <CopyFileToFolders Include="ghostPanicVS.txt">
-      <FileType>Text</FileType>
-    </CopyFileToFolders>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
@@ -187,6 +184,10 @@
   <ItemGroup>
     <CopyFileToFolders Include="assimpFragmentShader.txt" />
     <CopyFileToFolders Include="assimpVertexShader.txt" />
+  </ItemGroup>
+  <ItemGroup>
+	<CopyFileToFolders Include="ghostPanicVS.txt" />
+	<CopyFileToFolders Include="ghostPanicFS.txt" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="monkeyhead_smooth.dae">
@@ -225,9 +226,6 @@
   <ItemGroup>
     <CopyFileToFolders Include="playerFS.txt" />
     <CopyFileToFolders Include="playerVS.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <CopyFileToFolders Include="ghostPanicFS.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

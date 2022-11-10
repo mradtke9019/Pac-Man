@@ -10,8 +10,8 @@ uniform float rand;
 
 void main()                                                             
 {
+	FragColor = vec4(1.0, 1.0, 0.0, 1.0);
 	
-	FragColor = color;
-	//FragColor = vec4(rand * color.r, 1 - rand *  color.g, rand * rand * color.b, 1.0f);
+	//FragColor = color;
 	//FragColor = vec4(1.0,0.0,0.0,1.0);
 }

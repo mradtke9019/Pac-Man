@@ -52,15 +52,6 @@ GLfloat RotateY = 0.0f;
 GLfloat RotateX = 0.0f;
 
 
-/*----------------------------------------------------------------------------
-MESH TO LOAD
-----------------------------------------------------------------------------*/
-// this mesh is a dae file format but you should be able to use any other format too, obj is typically what is used
-// put the mesh in your project directory, or provide a filepath for it here
-#define MESH_NAME "monkeyhead_smooth.dae"
-/*----------------------------------------------------------------------------
-----------------------------------------------------------------------------*/
-
 
 // function to allow keyboard control
 // it's called a callback function and must be registerd in main() using glutKeyboardFunc();
@@ -146,6 +137,7 @@ void display()
 	myShader->SetUniform1f("time", timeValue);
 
 	playerShader->SetUniform1f("time", timeValue);
+	ghostPanicShader->SetUniform1f("time", timeValue);
 
 
 	glm::mat4 view = activeCamera->GetViewTransform();
@@ -159,43 +151,21 @@ void display()
 	myShader->SetUniformMatrix4fv("view", &view);
 	myShader->SetUniformMatrix4fv("projection", &projection);
 
-	ghostPanicShader->SetUniformMatrix4fv("view", &view);
-	ghostPanicShader->SetUniformMatrix4fv("projection", &projection);
+
 
 	playerShader->SetUniformMatrix4fv("view", &view);
 	playerShader->SetUniformMatrix4fv("projection", &projection);
-	// NB: Make the call to draw the geometry in the currently activated vertex buffer. This is where the GPU starts to work!
-	//glDrawArrays(GL_TRIANGLES, 0, 24);
-	//for (int i = 0; i < myObjects.size(); i++) {
-	//glm::mat4 model = glm::mat4(1.0f);
-	//	model =
-	//		glm::rotate(glm::mat4(1.0f), RotateZ, glm::vec3(0.0f, 0.0f, 1.0f)) *
-	//		glm::rotate(glm::mat4(1.0f), RotateY, glm::vec3(0.0f, 1.0f, 0.0f)) *
-	//		glm::rotate(glm::mat4(1.0f), RotateX, glm::vec3(1.0f, 0.0f, 0.0f));
-	//	myShader->SetUniformMatrix4fv("view", &view);
-	//	myShader->SetUniformMatrix4fv("projection", &projection);
-	//	myObjects.at(i).SetModelTransform(myObjects.at(i).GetModelTransform() * model);
-	//	myObjects.at(i).Draw();
-	//}
 
+	ghostPanicShader->SetUniformMatrix4fv("view", &view);
+	ghostPanicShader->SetUniformMatrix4fv("projection", &projection);
 
-	/*float rotation = glm::radians(timeValue * 0.10f);
-	glm::mat4 orbitTransform = glm::rotate(glm::mat4(1.0f), rotation, glm::vec3(0.0f, 1.0f, 0.0f)) *
-		glm::translate(glm::mat4(1.0f), glm::vec3(5.0f, 0.0f, 0.0f)) *
-		glm::rotate(glm::mat4(1.0f), rotation + glm::radians(2.0f * glm::pi<float>()), glm::vec3(0.0f, 1.0f, 0.0f))
-		;
-	orbit->SetModelTransform(orbitTransform);
-	orbit->Draw();*/
 
 	ghost->MoveTowardsPlayer(player, 0.1f);
 	ghost->Draw();
 
 	player->Draw();
 
-	//for (int i = 0; i < meshes.size(); i++) 
-	//{
-	//	meshes.at(i).Draw();
-	//}
+
 	for (int i = 0; i < myModels.size(); i++)
 	{
 		myModels.at(i).Draw();
@@ -300,7 +270,7 @@ void init()
 
 	auto timeValue = glutGet(GLUT_ELAPSED_TIME);
 	myShader->SetUniform1f("time", timeValue);
-	ghostPanicShader->SetUniform1f("time", timeValue);
+
 
 	float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 	assimpShader->SetUniform1f("rand", r);
@@ -321,8 +291,6 @@ void init()
 	assimpShader->SetUniformMatrix4fv("view", &view);
 	assimpShader->SetUniformMatrix4fv("projection", &projection);
 
-	ghostPanicShader->SetUniformMatrix4fv("view", &view);
-	ghostPanicShader->SetUniformMatrix4fv("projection", &projection);
 	
 
 	player = new Player(glm::vec3(5.0f, 0.0f, 0.0f), assimpShader);
@@ -330,9 +298,8 @@ void init()
 	ghost = new Ghost(glm::vec3(0.0f, 0.0f, 0.0f), assimpShader);
 	playerShader->SetUniformMatrix4fv("view", &view);
 	playerShader->SetUniformMatrix4fv("projection", &projection);
-
-
-	player = new Player(glm::vec3(0.0f, 0.0f, 0.0f), assimpShader);
+	ghostPanicShader->SetUniformMatrix4fv("view", &view);
+	ghostPanicShader->SetUniformMatrix4fv("projection", &projection);
 }
 
 
