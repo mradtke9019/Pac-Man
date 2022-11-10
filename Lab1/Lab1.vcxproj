@@ -223,6 +223,10 @@
     </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
+    <CopyFileToFolders Include="playerFS.txt" />
+    <CopyFileToFolders Include="playerVS.txt" />
+  </ItemGroup>
+  <ItemGroup>
     <CopyFileToFolders Include="ghostPanicFS.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
