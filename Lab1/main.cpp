@@ -259,8 +259,6 @@ void init()
 	myShader = new Shader("./vertexshader.txt", "./fragmentshader.txt", true);
 	playerShader = new Shader("./playerVS.txt", "./playerFS.txt", false);
 
-	assimpShader = new Shader("./assimpVertexShader.txt", "./assimpFragmentShader.txt", false);
-	myShader = new Shader("./vertexshader.txt", "./fragmentshader.txt", false);
 	ghostPanicShader = new Shader("./ghostPanicVS.txt", "./ghostPanicFS.txt", false);
 	ghostPanicShader->DebugOn();
 
@@ -295,7 +293,7 @@ void init()
 
 	player = new Player(glm::vec3(5.0f, 0.0f, 0.0f), assimpShader);
 
-	ghost = new Ghost(glm::vec3(0.0f, 0.0f, 0.0f), assimpShader);
+	ghost = new Ghost(glm::vec3(0.0f, 0.0f, 0.0f), ghostPanicShader);
 	playerShader->SetUniformMatrix4fv("view", &view);
 	playerShader->SetUniformMatrix4fv("projection", &projection);
 	ghostPanicShader->SetUniformMatrix4fv("view", &view);
