@@ -97,7 +97,7 @@ private:
     }
 
 public:
-    Shader(const char* vertexShaderPath, const char* fragmentShaderPath, bool useProgram);
+    Shader(const char* vertexShaderPath, const char* fragmentShaderPath);
 
     void DebugOn();
 
@@ -123,6 +123,9 @@ public:
 
     void SetUniformMatrix4fv(const char* mat, glm::mat4* matrix);
 
+    GLuint GetUniformVec3(const char* vec);
+
+    void SetUniformVec3(const char* vec, glm::vec3 vector);
 
     // utility uniform functions
     // ------------------------------------------------------------------------

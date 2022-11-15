@@ -6,15 +6,21 @@
 #include "Player.h"
 #include "Model.h"
 
+
+enum Direction { Up, Down, Left, Right, None };
+enum Mode {Panic, Attack};
+
 class Ghost
 {
 private:
+	Mode mode;
 	Model* model;
 	glm::vec3 Position;
 	std::string modelPath;
 	float yaw;
 	float pitch;
 	float roll;
+	float MoveSpeed;
 
 	glm::mat4 GetModelTransform()
 	{
@@ -28,11 +34,25 @@ private:
 
 public:
 	Ghost(glm::vec3 pos, Shader* shader);
+	static float FastMoveSpeed()
+	{
+		return 0.01f;
+	}
+	static float SlowMoveSpeed()
+	{
+		return 0.005f;
+	}
 	Model* GetModel();
-	void MoveTowardsPlayer(Player* player, float x);
-	void MoveUp(float x);
-	void MoveDown(float x);
-	void MoveLeft(float x);
-	void MoveRight(float x);
+	void Move(Player* player);
+	void MoveTowardsPlayer(Player* player);
+	void MoveAwayFromPlayer(Player* player);
+	void SetMovespeed(float x);
+	float GetMovespeed();
+	void SetMode(Mode Mode);
+	Mode GetMode();
+	void MoveUp();
+	void MoveDown();
+	void MoveLeft();
+	void MoveRight();
 	void Draw();
 };

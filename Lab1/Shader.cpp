@@ -1,16 +1,12 @@
 #include "Shader.h"
 
 
-Shader::Shader(const char* vertexShaderPath, const char* fragmentShaderPath, bool useProgram)
+Shader::Shader(const char* vertexShaderPath, const char* fragmentShaderPath)
 	: ShaderProgramID(0), debugShader(false)
 {
 	VertexShaderText = ReadFile(vertexShaderPath);
 	FragmentShaderText = ReadFile(fragmentShaderPath);
 	ShaderProgramID = CompileShaders(VertexShaderText, FragmentShaderText);
-	if (useProgram)
-	{
-		Use();
-	}
 }
 
 
@@ -65,6 +61,7 @@ GLuint Shader::GetUniformLocation(const char* uniform)
 
 void Shader::SetUniform1f(const char* uniform, float value)
 {
+	Use();
 	int uniformId = GetUniformLocation(uniform);
 	if (uniformId < 0 && debugShader)
 	{
@@ -85,6 +82,7 @@ GLuint Shader::GetUniformMatrix4fv(const char* mat)
 
 void Shader::SetUniformMatrix44fv(const char* mat, glm::mat4x4* matrix)
 {
+	Use();
 	int id = GetUniformMatrix4fv(mat);
 	if (id < 0 && debugShader) {
 		fprintf(stderr, "Unable to set uniform matrix '%s' in shader program id: '%i'\n", mat, ShaderProgramID);
@@ -95,6 +93,7 @@ void Shader::SetUniformMatrix44fv(const char* mat, glm::mat4x4* matrix)
 
 void Shader::SetUniformMatrix4fv(const char* mat, glm::mat4* matrix)
 {
+	Use();
 	int id = GetUniformMatrix4fv(mat);
 	if (id < 0 && debugShader) {
 		fprintf(stderr, "Unable to set uniform matrix '%s' in shader program id: '%i'\n", mat, ShaderProgramID);
@@ -103,6 +102,26 @@ void Shader::SetUniformMatrix4fv(const char* mat, glm::mat4* matrix)
 	glUniformMatrix4fv(id, 1, GL_FALSE, &matrix[0][0][0]);
 }
 
+GLuint Shader::GetUniformVec3(const char* vec)
+{
+	Use();
+	int id = glGetUniformLocation(ShaderProgramID, vec);
+	if (id < 0 && debugShader) {
+		fprintf(stderr, "Unable to set vec3 '%s' in shader program id: '%i'\n", vec, ShaderProgramID);
+	}
+
+	return id;
+}
+
+void Shader::SetUniformVec3(const char* vec, glm::vec3 vector)
+{
+	Use();
+	int id = GetUniformMatrix4fv(vec);
+	if (id < 0 && debugShader) {
+		fprintf(stderr, "Unable to set vec3 '%s' in shader program id: '%i'\n", vec, ShaderProgramID);
+	}
+	glUniform3f(id, vector.x, vector.y, vector.z);
+}
 
 // utility uniform functions
 // ------------------------------------------------------------------------

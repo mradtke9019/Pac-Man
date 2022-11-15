@@ -27,9 +27,8 @@
 using namespace std;
 
 Shader* playerShader;
-Shader* myShader;
-Shader* assimpShader;
 Shader* ghostPanicShader;
+Shader* ghostNormalShader;
 vector<Object> myObjects;
 vector<Mesh> meshes;
 
@@ -112,17 +111,15 @@ void keyPress(unsigned char key, int x, int y)
 	case '3':
 		activeCamera = camera3;
 		break;
-	case '/':
-		player->GetModel()->SetShader(playerShader);
-		break;
-	case '.':
-		player->GetModel()->SetShader(assimpShader);
-		break;
 	case '0':
 		ghost->GetModel()->SetShader(ghostPanicShader);
+		ghost->SetMode(Panic);
+		ghost->SetMovespeed(Ghost::SlowMoveSpeed());
 		break;
 	case '-':
-		ghost->GetModel()->SetShader(assimpShader);
+		ghost->GetModel()->SetShader(ghostNormalShader);
+		ghost->SetMode(Attack);
+		ghost->SetMovespeed(Ghost::FastMoveSpeed());
 		break;
 	}
 
@@ -134,35 +131,34 @@ void display()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	auto timeValue = glutGet(GLUT_ELAPSED_TIME);
-	myShader->SetUniform1f("time", timeValue);
 
-	playerShader->SetUniform1f("time", timeValue);
-	ghostPanicShader->SetUniform1f("time", timeValue);
 
 
 	glm::mat4 view = activeCamera->GetViewTransform();
 	glm::mat4 projection = glm::perspective(glm::radians(60.0f), (float)Width / (float)Height, 0.1f, 100.0f);
 
 	float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-	assimpShader->SetUniform1f("rand", r);
-	assimpShader->SetUniformMatrix4fv("view", &view);
-	assimpShader->SetUniformMatrix4fv("projection", &projection);
-
-	myShader->SetUniformMatrix4fv("view", &view);
-	myShader->SetUniformMatrix4fv("projection", &projection);
 
 
+	ghostNormalShader->SetUniform1f("time", timeValue);
+	ghostNormalShader->SetUniform1f("rand", r);
+	ghostNormalShader->SetUniformMatrix4fv("view", &view);
+	ghostNormalShader->SetUniformMatrix4fv("projection", &projection);
 
+
+	playerShader->SetUniform1f("time", timeValue);
+	playerShader->SetUniform1f("rand", r);
 	playerShader->SetUniformMatrix4fv("view", &view);
 	playerShader->SetUniformMatrix4fv("projection", &projection);
 
+	ghostPanicShader->SetUniform1f("time", timeValue);
+	ghostPanicShader->SetUniform1f("rand", r);
 	ghostPanicShader->SetUniformMatrix4fv("view", &view);
 	ghostPanicShader->SetUniformMatrix4fv("projection", &projection);
 
 
-	ghost->MoveTowardsPlayer(player, 0.1f);
+	ghost->Move(player);
 	ghost->Draw();
-
 	player->Draw();
 
 
@@ -179,73 +175,6 @@ void display()
 void init()
 {
 	glEnable(GL_DEPTH_TEST);
-	GLfloat diamondVerts[] = {
-		-1.0f, 0.0f, -1.0f,
-		1.0f, 0.0f, -1.0f,
-		0.0f, 1.0f, 0.0f,
-
-		-1.0f, 0.0f, -1.0f,
-		-1.0f, 0.0f, 1.0f,
-		0.0f, 1.0f, 0.0f,
-
-		-1.0f,0.0f,1.0f,
-		1.0,0.0f,1.0f,
-		0.0f,1.0f,0.0f,
-
-		1.0,0.0f,1.0f,
-		1.0,0.0f,-1.0f,
-		0.0f,1.0f,0.0f,
-
-		-1.0f, 0.0f, -1.0f,
-		1.0f, 0.0f, -1.0f,
-		0.0f, -1.0f, 0.0f,
-
-		-1.0f, 0.0f, -1.0f,
-		-1.0f, 0.0f, 1.0f,
-		0.0f, -1.0f, 0.0f,
-
-		-1.0f,0.0f,1.0f,
-		1.0,0.0f,1.0f,
-		0.0f,-1.0f,0.0f,
-
-		1.0,0.0f,1.0f,
-		1.0,0.0f,-1.0f,
-		0.0f,-1.0f,0.0f
-	};
-
-	GLfloat diamondColors[] = {
-		1.0f, 0.0f, 0.0f, 1.0f,
-		0.0f, 1.0f, 0.0f, 1.0f,
-		0.0f, 0.0f, 1.0f, 1.0f,
-
-		1.0f, 0.0f, 0.0f, 1.0f,
-		0.0f, 1.0f, 0.0f, 1.0f,
-		0.0f, 0.0f, 1.0f, 1.0f,
-
-		1.0f, 0.0f, 0.0f, 1.0f,
-		0.0f, 1.0f, 0.0f, 1.0f,
-		0.0f, 0.0f, 1.0f, 1.0f,
-
-		1.0f, 0.0f, 0.0f, 1.0f,
-		0.0f, 1.0f, 0.0f, 1.0f,
-		0.0f, 0.0f, 1.0f, 1.0f,
-
-		1.0f, 0.0f, 0.0f, 1.0f,
-		0.0f, 1.0f, 0.0f, 1.0f,
-		0.0f, 0.0f, 1.0f, 1.0f,
-
-		1.0f, 0.0f, 0.0f, 1.0f,
-		0.0f, 1.0f, 0.0f, 1.0f,
-		0.0f, 0.0f, 1.0f, 1.0f,
-
-		1.0f, 0.0f, 0.0f, 1.0f,
-		0.0f, 1.0f, 0.0f, 1.0f,
-		0.0f, 0.0f, 1.0f, 1.0f,
-
-		1.0f, 0.0f, 0.0f, 1.0f,
-		0.0f, 1.0f, 0.0f, 1.0f,
-		0.0f, 0.0f, 1.0f, 1.0f,
-	};
 
 	camera1 = new Camera(glm::vec3(0.0f,3.0f,3.0f));
 	camera2 = new Camera(glm::vec3(0.0f, 10.0f, 10.0f));
@@ -254,25 +183,16 @@ void init()
 
 	activeCamera = camera1;
 
-	// Set up the shaders	// Set up the shaders
-	assimpShader = new Shader("./assimpVertexShader.txt", "./assimpFragmentShader.txt", true);
-	myShader = new Shader("./vertexshader.txt", "./fragmentshader.txt", true);
-	playerShader = new Shader("./playerVS.txt", "./playerFS.txt", false);
+	// Set up the shaders
+	playerShader = new Shader("./playerVS.txt", "./playerFS.txt");
+	ghostNormalShader = new Shader("./ghostNormalVS.txt", "./ghostNormalFS.txt");
+	ghostPanicShader = new Shader("./ghostPanicVS.txt", "./ghostPanicFS.txt");
 
-	ghostPanicShader = new Shader("./ghostPanicVS.txt", "./ghostPanicFS.txt", false);
-	ghostPanicShader->DebugOn();
-
-
-	orbit = new Model("./Pacman.obj", glm::vec3(0.0f, 0.0f, 0.0f), assimpShader);
 
 
 	auto timeValue = glutGet(GLUT_ELAPSED_TIME);
-	myShader->SetUniform1f("time", timeValue);
-
 
 	float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-	assimpShader->SetUniform1f("rand", r);
-	assimpShader->SetUniform1f("time", timeValue);
 
 	glm::mat4 view = glm::mat4(1.0f);
 	glm::mat4 projection = glm::mat4(1.0f);
@@ -282,20 +202,22 @@ void init()
 	view = activeCamera->GetViewTransform();
 	projection = glm::perspective(glm::radians(60.0f), (float)Width / (float)Height, 0.1f, 100.0f);
 
-	myShader->SetUniformMatrix4fv("view", &view);
-	myShader->SetUniformMatrix4fv("projection", &projection);
 
+	player = new Player(glm::vec3(5.0f, 0.0f, 0.0f), playerShader);
+	ghost = new Ghost(glm::vec3(0.0f, 0.0f, 0.0f), ghostNormalShader);
 
-	assimpShader->SetUniformMatrix4fv("view", &view);
-	assimpShader->SetUniformMatrix4fv("projection", &projection);
-
-	
-
-	player = new Player(glm::vec3(5.0f, 0.0f, 0.0f), assimpShader);
-
-	ghost = new Ghost(glm::vec3(0.0f, 0.0f, 0.0f), ghostPanicShader);
+	playerShader->SetUniform1f("rand", r);
+	playerShader->SetUniform1f("time", timeValue);
 	playerShader->SetUniformMatrix4fv("view", &view);
 	playerShader->SetUniformMatrix4fv("projection", &projection);
+
+	ghostNormalShader->SetUniform1f("rand", r);
+	ghostNormalShader->SetUniform1f("time", timeValue);
+	ghostNormalShader->SetUniformMatrix4fv("view", &view);
+	ghostNormalShader->SetUniformMatrix4fv("projection", &projection);
+
+	ghostPanicShader->SetUniform1f("rand", r);
+	ghostPanicShader->SetUniform1f("time", timeValue);
 	ghostPanicShader->SetUniformMatrix4fv("view", &view);
 	ghostPanicShader->SetUniformMatrix4fv("projection", &projection);
 }

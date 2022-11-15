@@ -16,6 +16,7 @@ Player::Player(glm::vec3 pos, Shader* shader)
 void Player::Draw()
 {
 	model->SetModelTransform(GetModelTransform());
+	model->GetShader()->Use();
 	model->Draw();
 }
 

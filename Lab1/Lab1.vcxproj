@@ -157,17 +157,6 @@
     <ClCompile Include="Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="fragmentshader.txt" />
-    <CopyFileToFolders Include="vertexshader.txt">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
-    <CopyFileToFolders Include="Lowpoly_tree_sample.obj">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Character.h" />
     <ClInclude Include="Direction.h" />
@@ -182,31 +171,8 @@
     <ClInclude Include="Shader.h" />
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="assimpFragmentShader.txt" />
-    <CopyFileToFolders Include="assimpVertexShader.txt" />
-  </ItemGroup>
-  <ItemGroup>
-	<CopyFileToFolders Include="ghostPanicVS.txt" />
-	<CopyFileToFolders Include="ghostPanicFS.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <CopyFileToFolders Include="monkeyhead_smooth.dae">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
-    <CopyFileToFolders Include="knight.c4d">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
-    <CopyFileToFolders Include="knight.obj">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
-    <CopyFileToFolders Include="armor.jpg" />
-    <CopyFileToFolders Include="gen.face.jpg" />
+    <CopyFileToFolders Include="ghostPanicVS.txt" />
+    <CopyFileToFolders Include="ghostPanicFS.txt" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="Pacman.obj">
@@ -226,6 +192,10 @@
   <ItemGroup>
     <CopyFileToFolders Include="playerFS.txt" />
     <CopyFileToFolders Include="playerVS.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="ghostNormalFS.txt" />
+    <CopyFileToFolders Include="ghostNormalVS.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

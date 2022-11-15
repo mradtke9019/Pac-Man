@@ -9,9 +9,14 @@ uniform mat4 view;
 uniform mat4 projection;
 
 out vec4 color;
+out vec3 fNormal;
+out vec3 fPosition;
+out vec3 FragPos;
 
 void main()                                                              
 {
-	color = vec4(vNormal,1.0);
 	gl_Position = projection * view * model * vec4(vPosition, 1.0);
+	fPosition = vec3(gl_Position);
+	fNormal =  transpose(inverse(mat3(model))) * vNormal;
+    FragPos = vec3(model * vec4(vPosition, 1.0));
 }
