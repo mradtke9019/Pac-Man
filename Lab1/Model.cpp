@@ -4,6 +4,7 @@ Model::Model(std::string path, glm::vec3 Position, Shader* Shader)
 	: ModelTransform(glm::mat4(1.0f))
 {
 	shader = Shader;
+	ModelTransform = glm::translate(glm::mat4(1.0f), Position);
 	LoadModel(path);
 }
 

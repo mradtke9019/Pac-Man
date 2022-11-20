@@ -18,6 +18,7 @@
 #include "FixedCamera.h"
 #include "Player.h"
 #include "Ghost.h"
+#include "Arena.h"
 
 // Macro for indexing vertex buffer
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
@@ -29,6 +30,7 @@ using namespace std;
 Shader* playerShader;
 Shader* ghostPanicShader;
 Shader* ghostNormalShader;
+Shader* arenaShader;
 vector<Object> myObjects;
 vector<Mesh> meshes;
 
@@ -42,7 +44,11 @@ int onCamera = 1;
 
 Model* orbit;
 Ghost* ghost;
+vector<Ghost*> ghosts;
 vector<Model> myModels;
+vector<Model> particles;
+
+Arena* arena;
 
 Player* player;
 
@@ -58,25 +64,23 @@ GLfloat RotateX = 0.0f;
 // similar functions exist for mouse control etc
 void keyPress(unsigned char key, int x, int y)
 {
-
-	GLfloat translateScale = 0.5f;
 	switch (key) {
 
 	case'w':
 		//activeCamera->TranslateZ(-translateScale);
-		player->MoveUp(translateScale);
+		player->SetDirection(Up);
 		break;
 	case's':
 		//activeCamera->TranslateZ(translateScale);
-		player->MoveDown(translateScale);
+		player->SetDirection(Down);
 		break;
 	case'a':
 		//activeCamera->TranslateX(-translateScale);
-		player->MoveLeft(translateScale);
+		player->SetDirection(Left);
 		break;
 	case'd':
 		//activeCamera->TranslateX(translateScale);
-		player->MoveRight(translateScale);
+		player->SetDirection(Right);
 		break;
 	case 'n':
 		RotateX -= 0.1f;
@@ -112,19 +116,30 @@ void keyPress(unsigned char key, int x, int y)
 		activeCamera = camera3;
 		break;
 	case '0':
-		ghost->GetModel()->SetShader(ghostPanicShader);
-		ghost->SetMode(Panic);
-		ghost->SetMovespeed(Ghost::SlowMoveSpeed());
+		for (int i = 0; i < ghosts.size(); i++)
+		{
+			ghosts.at(i)->GetModel()->SetShader(ghostPanicShader);
+			ghosts.at(i)->SetMode(Panic);
+			ghosts.at(i)->SetMovespeed(Ghost::SlowMoveSpeed());
+		}
 		break;
 	case '-':
-		ghost->GetModel()->SetShader(ghostNormalShader);
-		ghost->SetMode(Attack);
-		ghost->SetMovespeed(Ghost::FastMoveSpeed());
+		for (int i = 0; i < ghosts.size(); i++)
+		{
+			ghosts.at(i)->GetModel()->SetShader(ghostNormalShader);
+			ghosts.at(i)->SetMode(Attack);
+			ghosts.at(i)->SetMovespeed(Ghost::FastMoveSpeed());
+		}
 		break;
 	}
 
 	// we must call these to redraw the scene after we make any changes 
 	glutPostRedisplay();
+}
+
+glm::mat4 GetProjection()
+{
+	return glm::perspective(glm::radians(60.0f), (float)Width / (float)Height, 0.1f, 300.0f);
 }
 
 void display()
@@ -135,36 +150,52 @@ void display()
 
 
 	glm::mat4 view = activeCamera->GetViewTransform();
-	glm::mat4 projection = glm::perspective(glm::radians(60.0f), (float)Width / (float)Height, 0.1f, 100.0f);
-
 	float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 
 
 	ghostNormalShader->SetUniform1f("time", timeValue);
 	ghostNormalShader->SetUniform1f("rand", r);
 	ghostNormalShader->SetUniformMatrix4fv("view", &view);
-	ghostNormalShader->SetUniformMatrix4fv("projection", &projection);
 
 
 	playerShader->SetUniform1f("time", timeValue);
 	playerShader->SetUniform1f("rand", r);
 	playerShader->SetUniformMatrix4fv("view", &view);
-	playerShader->SetUniformMatrix4fv("projection", &projection);
 
 	ghostPanicShader->SetUniform1f("time", timeValue);
 	ghostPanicShader->SetUniform1f("rand", r);
 	ghostPanicShader->SetUniformMatrix4fv("view", &view);
-	ghostPanicShader->SetUniformMatrix4fv("projection", &projection);
+
+	
+	arenaShader->SetUniform1f("time", timeValue);
+	arenaShader->SetUniform1f("rand", r);
+	arenaShader->SetUniformMatrix4fv("view", &view);
+
+	arena->Draw();
+	for (int i = 0; i < ghosts.size(); i++)
+	{
+		ghosts.at(i)->Move(player, arena);
+		ghosts.at(i)->Draw();
+	}
+	//ghost->Move(player);
+	//ghost->Draw();
 
 
-	ghost->Move(player);
-	ghost->Draw();
+	player->Move(arena);
 	player->Draw();
 
 
-	for (int i = 0; i < myModels.size(); i++)
-	{
-		myModels.at(i).Draw();
+	float angleStep = 360.0f / particles.size();
+	glm::mat4 playerModel = glm::translate(glm::mat4(1.0f), player->GetPosition());
+	for (int i = 0; i < particles.size(); i++) {
+		float angle = angleStep * i;
+		glm::mat4 particleTransform =
+			playerModel *
+			glm::rotate(glm::mat4(1.0f), glm::radians(angle * timeValue * 0.005f), glm::vec3(0.0f, 1.0f, 0.0f)) *
+			glm::translate(glm::mat4(1.0f), glm::vec3(4, 0, 0));
+
+		particles.at(i).SetModelTransform(particleTransform);
+		particles.at(i).Draw();
 	}
 
 	glutPostRedisplay();
@@ -179,7 +210,7 @@ void init()
 	camera1 = new Camera(glm::vec3(0.0f,3.0f,3.0f));
 	camera2 = new Camera(glm::vec3(0.0f, 10.0f, 10.0f));
 	// Camera with arial view looking straight down at the origin
-	camera3 = new FixedCamera(glm::vec3(0.0f, 40.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
+	camera3 = new FixedCamera(glm::vec3(0.0f, 150.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
 
 	activeCamera = camera1;
 
@@ -187,7 +218,7 @@ void init()
 	playerShader = new Shader("./playerVS.txt", "./playerFS.txt");
 	ghostNormalShader = new Shader("./ghostNormalVS.txt", "./ghostNormalFS.txt");
 	ghostPanicShader = new Shader("./ghostPanicVS.txt", "./ghostPanicFS.txt");
-
+	arenaShader = new Shader("./arenaVS.txt", "./arenaFS.txt");
 
 
 	auto timeValue = glutGet(GLUT_ELAPSED_TIME);
@@ -200,11 +231,20 @@ void init()
 
 	//model = glm::rotate(model, glm::radians(1.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 	view = activeCamera->GetViewTransform();
-	projection = glm::perspective(glm::radians(60.0f), (float)Width / (float)Height, 0.1f, 100.0f);
+	projection = GetProjection();
 
+	arena = new Arena("./arena.txt", arenaShader);
+	player = new Player(arena->GetPlayerInitialPosition(), playerShader);
+	for (int i = 0; i < arena->GetGhostInitialPositions().size(); i++)
+	{
+		ghosts.push_back(new Ghost(arena->GetGhostInitialPositions().at(i), ghostNormalShader));
+	}
 
-	player = new Player(glm::vec3(5.0f, 0.0f, 0.0f), playerShader);
-	ghost = new Ghost(glm::vec3(0.0f, 0.0f, 0.0f), ghostNormalShader);
+	for (int i = 0; i < 6; i++) {
+		particles.push_back(Model("./point.obj", player->GetPosition(), playerShader));
+	}
+
+	//ghost = new Ghost(glm::vec3(0.0f, 0.0f, 0.0f), ghostNormalShader);
 
 	playerShader->SetUniform1f("rand", r);
 	playerShader->SetUniform1f("time", timeValue);
@@ -220,6 +260,11 @@ void init()
 	ghostPanicShader->SetUniform1f("time", timeValue);
 	ghostPanicShader->SetUniformMatrix4fv("view", &view);
 	ghostPanicShader->SetUniformMatrix4fv("projection", &projection);
+
+	arenaShader->SetUniform1f("rand", r);
+	arenaShader->SetUniform1f("time", timeValue);
+	arenaShader->SetUniformMatrix4fv("view", &view);
+	arenaShader->SetUniformMatrix4fv("projection", &projection);
 }
 
 

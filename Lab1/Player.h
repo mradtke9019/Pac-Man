@@ -4,6 +4,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "Model.h"
+#include "Direction.h"
+#include "Arena.h"
 
 class Player
 {
@@ -14,6 +16,8 @@ private:
 	float yaw;
 	float pitch;
 	float roll;
+	float movespeed;
+	Direction direction;
 
 	glm::mat4 GetModelTransform()
 	{
@@ -30,9 +34,11 @@ public:
 	Player(glm::vec3 pos, Shader* shader);
 	Model* GetModel();
 	glm::vec3 GetPosition();
-	void MoveUp(float x);
-	void MoveDown(float x);
-	void MoveLeft(float x);
-	void MoveRight(float x);
+	void SetDirection(Direction direction);
+	void Move(Arena* arena);
+	void MoveUp(Arena* arena);
+	void MoveDown(Arena* arena);
+	void MoveLeft(Arena* arena);
+	void MoveRight(Arena* arena);
 	void Draw();
 };

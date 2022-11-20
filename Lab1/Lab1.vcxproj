@@ -145,6 +145,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Arena.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="FixedCamera.cpp" />
     <ClCompile Include="FreeCamera.cpp" />
@@ -157,6 +158,7 @@
     <ClCompile Include="Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Arena.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Character.h" />
     <ClInclude Include="Direction.h" />
@@ -196,6 +198,28 @@
   <ItemGroup>
     <CopyFileToFolders Include="ghostNormalFS.txt" />
     <CopyFileToFolders Include="ghostNormalVS.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="arenaFS.txt" />
+    <CopyFileToFolders Include="arenaVS.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="box.obj">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="arena.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="point.obj">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="fruit.obj">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -5,9 +5,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "Player.h"
 #include "Model.h"
+#include "Direction.h"
 
-
-enum Direction { Up, Down, Left, Right, None };
 enum Mode {Panic, Attack};
 
 class Ghost
@@ -36,23 +35,23 @@ public:
 	Ghost(glm::vec3 pos, Shader* shader);
 	static float FastMoveSpeed()
 	{
-		return 0.01f;
+		return 0.5f;
 	}
 	static float SlowMoveSpeed()
 	{
-		return 0.005f;
+		return 1.05f;
 	}
 	Model* GetModel();
-	void Move(Player* player);
-	void MoveTowardsPlayer(Player* player);
-	void MoveAwayFromPlayer(Player* player);
+	void Move(Player* player, Arena* arena);
+	void MoveTowardsPlayer(Player* player, Arena* arena);
+	void MoveAwayFromPlayer(Player* player, Arena* arena);
 	void SetMovespeed(float x);
 	float GetMovespeed();
 	void SetMode(Mode Mode);
 	Mode GetMode();
-	void MoveUp();
-	void MoveDown();
-	void MoveLeft();
-	void MoveRight();
+	void MoveUp(Arena* arena);
+	void MoveDown(Arena* arena);
+	void MoveLeft(Arena* arena);
+	void MoveRight(Arena* arena);
 	void Draw();
 };

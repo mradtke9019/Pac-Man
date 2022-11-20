@@ -13,47 +13,51 @@ Ghost::Ghost(glm::vec3 pos, Shader* shader)
 }
 
 
-void Ghost::Move(Player* player) 
+void Ghost::Move(Player* player, Arena* arena)
 {
 	switch(mode)
 	{
 	case Attack:
-		MoveTowardsPlayer(player);
+		MoveTowardsPlayer(player, arena);
 		break;
 	case Panic:
-		MoveAwayFromPlayer(player);
+		MoveAwayFromPlayer(player, arena);
 		break;
 	}
 }
 
-void Ghost::MoveTowardsPlayer(Player* player)
+void Ghost::MoveTowardsPlayer(Player* player, Arena* arena)
 {
 	glm::vec3 playerPosition = player->GetPosition();
 	float currDistance = glm::distance(Position, playerPosition);
 	float min = MAXINT32;
 	Direction direction = Right;
-	float d1 = glm::distance(glm::vec3(Position.x + MoveSpeed, Position.y, Position.z), playerPosition);
-	float d2 = glm::distance(glm::vec3(Position.x - MoveSpeed, Position.y, Position.z), playerPosition);
-	float d3 = glm::distance(glm::vec3(Position.x, Position.y, Position.z + MoveSpeed), playerPosition);
-	float d4 = glm::distance(glm::vec3(Position.x, Position.y, Position.z - MoveSpeed), playerPosition);
+	glm::vec3 right = glm::vec3(Position.x + MoveSpeed, Position.y, Position.z);
+	glm::vec3 left = glm::vec3(Position.x - MoveSpeed, Position.y, Position.z);
+	glm::vec3 down = glm::vec3(Position.x, Position.y, Position.z + MoveSpeed);
+	glm::vec3 up = glm::vec3(Position.x, Position.y, Position.z - MoveSpeed);
+	float d1 = glm::distance(right, playerPosition);
+	float d2 = glm::distance(left, playerPosition);
+	float d3 = glm::distance(down, playerPosition);
+	float d4 = glm::distance(up, playerPosition);
 	float d0 = glm::distance(glm::vec3(Position.x, Position.y, Position.z), playerPosition);
 
-	if (d1 < min) 
+	if (d1 < min && arena->IsNavigatable(right)) 
 	{
 		min = d1;
 		direction = Right;
 	}
-	if (d2 < min) 
+	if (d2 < min && arena->IsNavigatable(left))
 	{
 		min = d2;
 		direction = Left;
 	}
-	if (d3 < min) 
+	if (d3 < min && arena->IsNavigatable(down))
 	{
 		min = d3;
 		direction = Down;
 	}
-	if (d4 < min) {
+	if (d4 < min && arena->IsNavigatable(up)) {
 		min = d4;
 		direction = Up;
 	}
@@ -65,23 +69,23 @@ void Ghost::MoveTowardsPlayer(Player* player)
 	switch (direction)
 	{
 	case Up:
-		MoveUp();
+		MoveUp(arena);
 		break;
 	case Down:
-		MoveDown();
+		MoveDown(arena);
 		break;
 	case Left:
-		MoveLeft();
+		MoveLeft(arena);
 		break;
 	case Right:
-		MoveRight();
+		MoveRight(arena);
 		break;
 	case None:
 		break;
 	}
 }
 
-void Ghost::MoveAwayFromPlayer(Player* player)
+void Ghost::MoveAwayFromPlayer(Player* player, Arena* arena)
 {
 	glm::vec3 playerPosition = player->GetPosition();
 	float currDistance = glm::distance(Position, playerPosition);
@@ -115,16 +119,16 @@ void Ghost::MoveAwayFromPlayer(Player* player)
 	switch (direction)
 	{
 	case Up:
-		MoveUp();
+		MoveUp(arena);
 		break;
 	case Down:
-		MoveDown();
+		MoveDown(arena);
 		break;
 	case Left:
-		MoveLeft();
+		MoveLeft(arena);
 		break;
 	case Right:
-		MoveRight();
+		MoveRight(arena);
 		break;
 	case None:
 		break;
@@ -163,19 +167,27 @@ Model* Ghost::GetModel()
 	return model;
 }
 
-void Ghost::MoveUp()
+void Ghost::MoveUp(Arena* arena)
 {
-	Position.z-= MoveSpeed;
+	glm::vec3 destination = Position + glm::vec3(0,0,-MoveSpeed);
+	Position = destination;
+	Position.x = arena->GetNearestValidPosition(destination).x;
 }
-void Ghost::MoveDown()
+void Ghost::MoveDown(Arena* arena)
 {
-	Position.z+= MoveSpeed;
+	glm::vec3 destination = Position + glm::vec3(0, 0, MoveSpeed);
+	Position = destination;
+	Position.x = arena->GetNearestValidPosition(destination).x;
 }
-void Ghost::MoveLeft()
+void Ghost::MoveLeft(Arena* arena)
 {
-	Position.x-= MoveSpeed;
+	glm::vec3 destination = Position + glm::vec3(-MoveSpeed, 0, 0);
+	Position = destination;
+	Position.z = arena->GetNearestValidPosition(destination).z;
 }
-void Ghost::MoveRight()
+void Ghost::MoveRight(Arena* arena)
 {
-	Position.x+= MoveSpeed;
+	glm::vec3 destination = Position + glm::vec3(MoveSpeed, 0, 0);
+	Position = destination;
+	Position.z = arena->GetNearestValidPosition(destination).z;
 }
