@@ -20,6 +20,9 @@ private:
 	float pitch;
 	float roll;
 	float MoveSpeed;
+	int Momentum;
+	int MomentumCount;
+	Direction direction;
 
 	glm::mat4 GetModelTransform()
 	{
