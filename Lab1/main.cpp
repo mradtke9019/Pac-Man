@@ -40,7 +40,7 @@ Camera* camera1;
 Camera* camera2;
 FixedCamera* camera3;
 
-int onCamera = 1;
+bool Pause;
 
 Model* orbit;
 Ghost* ghost;
@@ -65,7 +65,9 @@ GLfloat RotateX = 0.0f;
 void keyPress(unsigned char key, int x, int y)
 {
 	switch (key) {
-
+	case' ':
+		Pause = !Pause;
+		break;
 	case'w':
 		//activeCamera->TranslateZ(-translateScale);
 		player->SetDirection(Up);
@@ -171,17 +173,25 @@ void display()
 	arenaShader->SetUniform1f("rand", r);
 	arenaShader->SetUniformMatrix4fv("view", &view);
 
+	if (!Pause)
+	{
+		player->Move(arena);
+		for (int i = 0; i < ghosts.size(); i++)
+		{
+			ghosts.at(i)->Move(player, arena);
+		}
+	}
+
+	else
+	{
+
+	}
 	arena->Draw();
 	for (int i = 0; i < ghosts.size(); i++)
 	{
-		ghosts.at(i)->Move(player, arena);
 		ghosts.at(i)->Draw();
 	}
-	//ghost->Move(player);
-	//ghost->Draw();
 
-
-	player->Move(arena);
 	player->Draw();
 
 
@@ -206,7 +216,7 @@ void display()
 void init()
 {
 	glEnable(GL_DEPTH_TEST);
-
+	Pause = false;
 	camera1 = new Camera(glm::vec3(0.0f,3.0f,3.0f));
 	camera2 = new Camera(glm::vec3(0.0f, 10.0f, 10.0f));
 	// Camera with arial view looking straight down at the origin
@@ -237,7 +247,7 @@ void init()
 	player = new Player(arena->GetPlayerInitialPosition(), playerShader);
 	for (int i = 0; i < arena->GetGhostInitialPositions().size(); i++)
 	{
-		ghosts.push_back(new Ghost(arena->GetGhostInitialPositions().at(i), ghostNormalShader));
+		ghosts.push_back(new Ghost(arena->GetGhostInitialPositions().at(i), ghostNormalShader, i * 1));
 	}
 
 	for (int i = 0; i < 6; i++) {

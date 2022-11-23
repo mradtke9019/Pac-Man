@@ -36,6 +36,7 @@ private:
 
 public:
 	Ghost(glm::vec3 pos, Shader* shader);
+	Ghost(glm::vec3 pos, Shader* shader, int Momentum);
 	static float FastMoveSpeed()
 	{
 		return 0.5f;

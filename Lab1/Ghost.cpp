@@ -12,6 +12,15 @@ Ghost::Ghost(glm::vec3 pos, Shader* shader)
 	model->SetModelTransform(GetModelTransform());
 }
 
+Ghost::Ghost(glm::vec3 pos, Shader* shader, int Momentum)
+	: modelPath("./Ghost.obj"), model(nullptr), yaw(-90.0f), pitch(0), roll(90.f), MoveSpeed(FastMoveSpeed()), mode(Attack), MomentumCount(0)
+{
+	Position = pos;
+	this->Momentum = Momentum;
+	model = new Model(modelPath, Position, shader);
+	// want to flip the pacman model on its side
+	model->SetModelTransform(GetModelTransform());
+}
 
 void Ghost::Move(Player* player, Arena* arena)
 {
