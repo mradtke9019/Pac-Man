@@ -44,44 +44,15 @@ void Ghost::MoveTowardsPlayer(Player* player, Arena* arena)
 	}
 	else
 	{
-		glm::vec3 playerPosition = player->GetPosition();
-		float currDistance = glm::distance(Position, playerPosition);
-		float min = MAXINT32;
 		MomentumCount = 0;
-		glm::vec3 right = glm::vec3(Position.x + MoveSpeed, Position.y, Position.z);
-		glm::vec3 left = glm::vec3(Position.x - MoveSpeed, Position.y, Position.z);
-		glm::vec3 down = glm::vec3(Position.x, Position.y, Position.z + MoveSpeed);
-		glm::vec3 up = glm::vec3(Position.x, Position.y, Position.z - MoveSpeed);
-		float d1 = glm::distance(right, playerPosition);
-		float d2 = glm::distance(left, playerPosition);
-		float d3 = glm::distance(down, playerPosition);
-		float d4 = glm::distance(up, playerPosition);
-		float d0 = glm::distance(glm::vec3(Position.x, Position.y, Position.z), playerPosition);
 
- 		if (d1 < min && arena->IsNavigatable(right))
-		{
-			min = d1;
-			direction = Right;
-		}
-		if (d2 < min && arena->IsNavigatable(left))
-		{
-			min = d2;
-			direction = Left;
-		}
-		if (d3 < min && arena->IsNavigatable(down))
-		{
-			min = d3;
-			direction = Down;
-		}
-		if (d4 < min && arena->IsNavigatable(up)) {
-			min = d4;
-			direction = Up;
-		}
-		if (d0 < min) {
-			min = d0;
-			direction = None;
-		}
+		glm::vec2 playerCoordinate = arena->WorldToGrid(player->GetPosition());
+		glm::vec2 ghostCoordinate = arena->WorldToGrid(Position);
 
+		direction = SearchAgent::GetDirectionOfShortestPath(
+			std::pair<int, int>(ghostCoordinate.x, ghostCoordinate.y),
+			std::pair<int, int>(playerCoordinate.x, playerCoordinate.y),
+			(arena->GetValidPathing()));
 	}
 	switch (direction)
 	{
@@ -110,35 +81,16 @@ void Ghost::MoveAwayFromPlayer(Player* player, Arena* arena)
 	}
 	else 
 	{
-		glm::vec3 playerPosition = player->GetPosition();
-		float currDistance = glm::distance(Position, playerPosition);
-		float max = MININT32;
-
 		MomentumCount = 0;
-		float d1 = glm::distance(glm::vec3(Position.x + MoveSpeed, Position.y, Position.z), playerPosition);
-		float d2 = glm::distance(glm::vec3(Position.x - MoveSpeed, Position.y, Position.z), playerPosition);
-		float d3 = glm::distance(glm::vec3(Position.x, Position.y, Position.z + MoveSpeed), playerPosition);
-		float d4 = glm::distance(glm::vec3(Position.x, Position.y, Position.z - MoveSpeed), playerPosition);
 
-		if (d1 > max)
-		{
-			max = d1;
-			direction = Right;
-		}
-		if (d2 > max)
-		{
-			max = d2;
-			direction = Left;
-		}
-		if (d3 > max)
-		{
-			max = d3;
-			direction = Down;
-		}
-		if (d4 > max) {
-			max = d4;
-			direction = Up;
-		}
+		glm::vec2 playerCoordinate = arena->WorldToGrid(player->GetPosition());
+		glm::vec2 ghostCoordinate = arena->WorldToGrid(Position);
+
+		direction = SearchAgent::GetDirectionOfShortestPath(
+			std::pair<int, int>(ghostCoordinate.x, ghostCoordinate.y),
+			std::pair<int, int>(playerCoordinate.x, playerCoordinate.y),
+			(arena->GetValidPathing()));
+		direction = OppositeDirection(direction);
 	}
 
 	switch (direction)

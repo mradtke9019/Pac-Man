@@ -20,7 +20,10 @@ void Arena::Draw()
 		fruits.at(i)->Draw();
 	}
 }
-
+std::vector<std::vector<bool>>* Arena::GetValidPathing()
+{
+	return &ValidPathing;
+}
 
 float Arena::GetBoxWidth()
 {
@@ -71,6 +74,23 @@ glm::vec3 Arena::GetNearestValidPosition(glm::vec3 Position)
 
 
 
+glm::vec2 Arena::WorldToGrid(glm::vec3 Position)
+{
+	float distance = MAXINT;
+	glm::vec2 result = glm::vec2(MAXINT, MAXINT);
+	// Only allow the player to move in the direction if it is within the pathing limits
+	for (int i = 0; i < Pathing.size(); i++)
+	{
+		glm::vec3 curr = Pathing.at(i);
+		float d = glm::distance(curr, Position);
+
+		if (d < distance) {
+			distance = d;
+			result = PathIndexes.at(i);
+		}
+	}
+	return result;
+}
 
 std::vector<glm::vec3> Arena::GetPathing()
 {

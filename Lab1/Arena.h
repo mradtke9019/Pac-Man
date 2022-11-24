@@ -20,6 +20,7 @@ private:
 	std::vector<glm::vec3> GhostInitialPositions;
 	std::vector<glm::vec3> Pathing;
 	std::vector<glm::vec2> PathIndexes;
+	std::vector<std::vector<bool>> ValidPathing;
 
 	void ParseArenaFile(std::string file, Shader* shader)
 	{
@@ -33,8 +34,10 @@ private:
 		glm::vec3 offset = glm::vec3(-1.0f * boxWidth * (float)arenaTxt.at(0).size() / 2.0f , 0.0f, -1.0f * boxWidth * (float)arenaTxt.size() / 2.0f);
 		for (int i = 0; i < arenaTxt.size(); i++)
 		{
+			ValidPathing.push_back(std::vector<bool>());
 			for (int j = 0; j < arenaTxt.at(i).size(); j++)
 			{
+				bool valid = false;
 				if (arenaTxt.at(i).at(j) == '/') {
 					boxes.push_back(new Model(modelFile, glm::vec3(j * boxWidth, 0, i * boxWidth) + offset, shader));
 				}
@@ -50,8 +53,10 @@ private:
 						fruits.push_back(new Model("./fruit.obj", coordinate, shader));
 
 					Pathing.push_back(coordinate);
-					PathIndexes.push_back(glm::vec2(i, j));
+					PathIndexes.push_back(glm::vec2(j, i));
+					valid =true;
 				}
+				ValidPathing.at(i).push_back(valid);
 			}
 		}
 	}
@@ -64,6 +69,8 @@ public:
 		ParseArenaFile(arenaFile,shader);
 	}
 
+	std::vector<std::vector<bool>>* GetValidPathing();
+
 	float GetBoxWidth();
 
 	bool IsNavigatable(glm::vec3 Position);
@@ -73,6 +80,9 @@ public:
 	std::vector<glm::vec3> GetPathing();
 
 	std::vector<glm::vec2> GetPathIndexes();
+
+	// Accepts a position and converts it to the 2D arena grid coordinate
+	glm::vec2 WorldToGrid(glm::vec3 Position);
 
 	glm::vec3 GetPlayerInitialPosition();
 

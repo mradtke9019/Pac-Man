@@ -247,7 +247,7 @@ void init()
 	player = new Player(arena->GetPlayerInitialPosition(), playerShader);
 	for (int i = 0; i < arena->GetGhostInitialPositions().size(); i++)
 	{
-		ghosts.push_back(new Ghost(arena->GetGhostInitialPositions().at(i), ghostNormalShader, i * 1));
+		ghosts.push_back(new Ghost(arena->GetGhostInitialPositions().at(i), ghostNormalShader, i * 5));
 	}
 
 	for (int i = 0; i < 6; i++) {

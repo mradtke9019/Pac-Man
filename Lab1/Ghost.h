@@ -6,6 +6,7 @@
 #include "Player.h"
 #include "Model.h"
 #include "Direction.h"
+#include "SearchAgent.h"
 
 enum Mode {Panic, Attack};
 
