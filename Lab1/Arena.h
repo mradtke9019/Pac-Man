@@ -39,7 +39,7 @@ private:
 			{
 				bool valid = false;
 				if (arenaTxt.at(i).at(j) == '/') {
-					boxes.push_back(new Model(modelFile, glm::vec3(j * boxWidth, 0, i * boxWidth) + offset, shader));
+					boxes.push_back(new Model(modelFile, glm::vec3(j * boxWidth, 0, i * boxWidth) + offset, shader, glm::vec3(0.0,1.0,0.0)));
 				}
 				else {
 					glm::vec3 coordinate = glm::vec3(j * boxWidth, 0, i * boxWidth) + offset;
@@ -87,6 +87,8 @@ public:
 	glm::vec3 GetPlayerInitialPosition();
 
 	std::vector<glm::vec3> GetGhostInitialPositions();
+
+	bool Collision(glm::vec3 p1, glm::vec3 p2);
 
 	void Draw();
 };

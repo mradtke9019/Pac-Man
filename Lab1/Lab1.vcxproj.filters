@@ -98,6 +98,18 @@
     <CopyFileToFolders Include="fruit.obj">
       <Filter>Resource Files</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="FS1.txt">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="VS1.txt">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Pacman-death-sound.mp3">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="intro.wav">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Model.h">

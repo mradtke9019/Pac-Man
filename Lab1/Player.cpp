@@ -8,10 +8,15 @@ Player::Player(glm::vec3 pos, Shader* shader)
 {
 	Position = pos;
 	model = new Model(modelPath, Position, shader);
+	model->SetColor(glm::vec3(1.0, 1.0, 0.0));
 	// want to flip the pacman model on its side
 	model->SetModelTransform(GetModelTransform());
 }
 
+void Player::SetPosition(glm::vec3 Position)
+{
+	this->Position = Position;
+}
 
 void Player::Draw()
 {

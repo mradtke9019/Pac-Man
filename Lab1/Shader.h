@@ -18,6 +18,9 @@ private:
     std::string FragmentShaderText;
     GLuint ShaderProgramID;
     bool debugShader;
+    glm::vec3 LightPosition;
+    glm::vec3 LightDirection;
+    glm::vec3 LightColor;
 
     std::string ReadFile(const char* path)
     {

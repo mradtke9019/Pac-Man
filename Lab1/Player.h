@@ -34,6 +34,7 @@ public:
 	Player(glm::vec3 pos, Shader* shader);
 	Model* GetModel();
 	glm::vec3 GetPosition();
+	void SetPosition(glm::vec3 Position);
 	void SetDirection(Direction direction);
 	void Move(Arena* arena);
 	void MoveUp(Arena* arena);

@@ -88,13 +88,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.\glew-1.10.0\include;.\freeglut\include;.\glm;.\glm\glm;./assimp/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\glew-1.10.0\include;.\freeglut\include;.\glm;.\glm\glm;./assimp/include;.\irrKlang-1.6.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>.\glew-1.10.0\lib\Release\Win32;.\freeglut\lib;./assimp/lib/Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>freeglut.lib;glew32.lib;assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>.\glew-1.10.0\lib\Release\Win32;.\freeglut\lib;./assimp/lib/Debug;.\irrKlang-1.6.0\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>freeglut.lib;glew32.lib;assimp.lib;irrKlang.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -219,6 +219,20 @@
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="fruit.obj">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="FS1.txt" />
+    <CopyFileToFolders Include="VS1.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="Pacman-death-sound.mp3">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="intro.wav">
       <FileType>Document</FileType>
     </CopyFileToFolders>
   </ItemGroup>

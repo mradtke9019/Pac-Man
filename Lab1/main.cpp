@@ -19,31 +19,26 @@
 #include "Player.h"
 #include "Ghost.h"
 #include "Arena.h"
-
+#include <irrKlang.h>
 // Macro for indexing vertex buffer
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 #define Width 800
 #define Height 600
 
 using namespace std;
+using namespace irrklang;
 
-Shader* playerShader;
 Shader* ghostPanicShader;
-Shader* ghostNormalShader;
-Shader* arenaShader;
-vector<Object> myObjects;
-vector<Mesh> meshes;
+Shader* commonShader;
+ISoundEngine* SoundEngine;
 
 ICamera* activeCamera;
 
-Camera* camera1;
-Camera* camera2;
-FixedCamera* camera3;
+FixedCamera* defaultCamera;
+FixedCamera* tiltedCamera;
 
 bool Pause;
 
-Model* orbit;
-Ghost* ghost;
 vector<Ghost*> ghosts;
 vector<Model> myModels;
 vector<Model> particles;
@@ -52,92 +47,9 @@ Arena* arena;
 
 Player* player;
 
-GLfloat RotateZ = 0.0f;
-GLfloat RotateY = 0.0f;
-GLfloat RotateX = 0.0f;
 
 
 
-// function to allow keyboard control
-// it's called a callback function and must be registerd in main() using glutKeyboardFunc();
-// the functions must be of a specific format - see freeglut documentation
-// similar functions exist for mouse control etc
-void keyPress(unsigned char key, int x, int y)
-{
-	switch (key) {
-	case' ':
-		Pause = !Pause;
-		break;
-	case'w':
-		//activeCamera->TranslateZ(-translateScale);
-		player->SetDirection(Up);
-		break;
-	case's':
-		//activeCamera->TranslateZ(translateScale);
-		player->SetDirection(Down);
-		break;
-	case'a':
-		//activeCamera->TranslateX(-translateScale);
-		player->SetDirection(Left);
-		break;
-	case'd':
-		//activeCamera->TranslateX(translateScale);
-		player->SetDirection(Right);
-		break;
-	case 'n':
-		RotateX -= 0.1f;
-		break;
-	case 'm':
-		RotateX += 0.1f;
-		break;
-	case 'k':
-		RotateY -= 0.1f;
-		break;
-	case 'l':
-		RotateY += 0.1f;
-		break;
-	case 'o':
-		RotateZ -= 0.1f;
-		break;
-	case 'p':
-		RotateZ += 0.1f;
-		break;
-	case 'q':
-		activeCamera->RotateYaw(-10.0f);
-		break;
-	case 'e':
-		activeCamera->RotateYaw(10.0f);
-		break;
-	case '1':
-		activeCamera = camera1;
-		break;
-	case '2':
-		activeCamera = camera2;
-		break;
-	case '3':
-		activeCamera = camera3;
-		break;
-	case '0':
-		for (int i = 0; i < ghosts.size(); i++)
-		{
-			ghosts.at(i)->GetModel()->SetShader(ghostPanicShader);
-			ghosts.at(i)->SetMode(Panic);
-			ghosts.at(i)->SetMovespeed(Ghost::SlowMoveSpeed());
-		}
-		break;
-	case '-':
-		for (int i = 0; i < ghosts.size(); i++)
-		{
-			ghosts.at(i)->GetModel()->SetShader(ghostNormalShader);
-			ghosts.at(i)->SetMode(Attack);
-			ghosts.at(i)->SetMovespeed(Ghost::FastMoveSpeed());
-		}
-		break;
-	}
-
-	// we must call these to redraw the scene after we make any changes 
-	glutPostRedisplay();
-}
 
 glm::mat4 GetProjection()
 {
@@ -154,24 +66,15 @@ void display()
 	glm::mat4 view = activeCamera->GetViewTransform();
 	float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 
-
-	ghostNormalShader->SetUniform1f("time", timeValue);
-	ghostNormalShader->SetUniform1f("rand", r);
-	ghostNormalShader->SetUniformMatrix4fv("view", &view);
-
-
-	playerShader->SetUniform1f("time", timeValue);
-	playerShader->SetUniform1f("rand", r);
-	playerShader->SetUniformMatrix4fv("view", &view);
-
+	commonShader->SetUniform1f("time", timeValue);
+	commonShader->SetUniform1f("rand", r);
+	commonShader->SetUniformMatrix4fv("view", &view);
+	
 	ghostPanicShader->SetUniform1f("time", timeValue);
 	ghostPanicShader->SetUniform1f("rand", r);
 	ghostPanicShader->SetUniformMatrix4fv("view", &view);
 
-	
-	arenaShader->SetUniform1f("time", timeValue);
-	arenaShader->SetUniform1f("rand", r);
-	arenaShader->SetUniformMatrix4fv("view", &view);
+
 
 	if (!Pause)
 	{
@@ -179,12 +82,12 @@ void display()
 		for (int i = 0; i < ghosts.size(); i++)
 		{
 			ghosts.at(i)->Move(player, arena);
+			if (arena->Collision(player->GetPosition(), ghosts.at(i)->GetPosition()))
+			{
+				Pause = true;
+				SoundEngine->play2D("./Pacman-death-sound.mp3");
+			}
 		}
-	}
-
-	else
-	{
-
 	}
 	arena->Draw();
 	for (int i = 0; i < ghosts.size(); i++)
@@ -212,23 +115,43 @@ void display()
     glutSwapBuffers();
 }
 
+void LoadObjects()
+{
+	// Set up the shaders
+	ghostPanicShader = new Shader("./ghostPanicVS.txt", "./ghostPanicFS.txt");
+	commonShader = new Shader("./VS1.txt", "./FS1.txt");
+
+
+	arena = new Arena("./arena.txt", commonShader);
+	player = new Player(glm::vec3(0,0,0), commonShader);
+	ghosts = std::vector<Ghost*>();
+	particles = std::vector<Model>();
+
+	for (int i = 0; i < arena->GetGhostInitialPositions().size(); i++)
+	{
+		glm::vec3 randomColor = glm::vec3(
+			static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
+			static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
+			static_cast <float> (rand()) / static_cast <float> (RAND_MAX));
+		ghosts.push_back(new Ghost(glm::vec3(0,0,0), commonShader, i * 5, randomColor));
+	}
+
+	for (int i = 0; i < 6; i++) {
+		particles.push_back(Model("./point.obj", player->GetPosition(), commonShader, glm::vec3(1.0, 0.0, 1.0)));
+	}
+	SoundEngine = createIrrKlangDevice();
+}
 
 void init()
 {
 	glEnable(GL_DEPTH_TEST);
+	//Color initialzations
+	
 	Pause = false;
-	camera1 = new Camera(glm::vec3(0.0f,3.0f,3.0f));
-	camera2 = new Camera(glm::vec3(0.0f, 10.0f, 10.0f));
-	// Camera with arial view looking straight down at the origin
-	camera3 = new FixedCamera(glm::vec3(0.0f, 150.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
 
-	activeCamera = camera1;
-
-	// Set up the shaders
-	playerShader = new Shader("./playerVS.txt", "./playerFS.txt");
-	ghostNormalShader = new Shader("./ghostNormalVS.txt", "./ghostNormalFS.txt");
-	ghostPanicShader = new Shader("./ghostPanicVS.txt", "./ghostPanicFS.txt");
-	arenaShader = new Shader("./arenaVS.txt", "./arenaFS.txt");
+	defaultCamera = new FixedCamera(glm::vec3(0.0f, 150.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
+	tiltedCamera = new FixedCamera(glm::vec3(150.0f, 150.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
+	activeCamera = defaultCamera;
 
 
 	auto timeValue = glutGet(GLUT_ELAPSED_TIME);
@@ -238,46 +161,89 @@ void init()
 	glm::mat4 view = glm::mat4(1.0f);
 	glm::mat4 projection = glm::mat4(1.0f);
 
-
-	//model = glm::rotate(model, glm::radians(1.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 	view = activeCamera->GetViewTransform();
 	projection = GetProjection();
 
-	arena = new Arena("./arena.txt", arenaShader);
-	player = new Player(arena->GetPlayerInitialPosition(), playerShader);
-	for (int i = 0; i < arena->GetGhostInitialPositions().size(); i++)
+	player->SetPosition(arena->GetPlayerInitialPosition());
+	for (int i = 0; i < ghosts.size(); i++)
 	{
-		ghosts.push_back(new Ghost(arena->GetGhostInitialPositions().at(i), ghostNormalShader, i * 5));
+		ghosts.at(i)->SetPosition(arena->GetGhostInitialPositions().at(i));
 	}
 
-	for (int i = 0; i < 6; i++) {
-		particles.push_back(Model("./point.obj", player->GetPosition(), playerShader));
-	}
-
-	//ghost = new Ghost(glm::vec3(0.0f, 0.0f, 0.0f), ghostNormalShader);
-
-	playerShader->SetUniform1f("rand", r);
-	playerShader->SetUniform1f("time", timeValue);
-	playerShader->SetUniformMatrix4fv("view", &view);
-	playerShader->SetUniformMatrix4fv("projection", &projection);
-
-	ghostNormalShader->SetUniform1f("rand", r);
-	ghostNormalShader->SetUniform1f("time", timeValue);
-	ghostNormalShader->SetUniformMatrix4fv("view", &view);
-	ghostNormalShader->SetUniformMatrix4fv("projection", &projection);
+	commonShader->SetUniform1f("rand", r);
+	commonShader->SetUniform1f("time", timeValue);
+	commonShader->SetUniformMatrix4fv("view", &view);
+	commonShader->SetUniformMatrix4fv("projection", &projection);
+	commonShader->SetUniformVec3("LightColor", glm::vec3(0.5,0.5,0.5));
+	commonShader->SetUniformVec3("LightPosition", glm::vec3(-1.0, 1.0, -0.3));
+	commonShader->SetUniformVec3("LightDirection", glm::vec3(0.1, -1.0, -0.3));
+	
 
 	ghostPanicShader->SetUniform1f("rand", r);
 	ghostPanicShader->SetUniform1f("time", timeValue);
 	ghostPanicShader->SetUniformMatrix4fv("view", &view);
 	ghostPanicShader->SetUniformMatrix4fv("projection", &projection);
 
-	arenaShader->SetUniform1f("rand", r);
-	arenaShader->SetUniform1f("time", timeValue);
-	arenaShader->SetUniformMatrix4fv("view", &view);
-	arenaShader->SetUniformMatrix4fv("projection", &projection);
+	SoundEngine->play2D("./intro.wav");
 }
 
+// function to allow keyboard control
+// it's called a callback function and must be registerd in main() using glutKeyboardFunc();
+// the functions must be of a specific format - see freeglut documentation
+// similar functions exist for mouse control etc
+void keyPress(unsigned char key, int x, int y)
+{
+	switch (key) {
+	case' ':
+		Pause = !Pause;
+		break;
+	case'w':
+		//activeCamera->TranslateZ(-translateScale);
+		player->SetDirection(Up);
+		break;
+	case's':
+		//activeCamera->TranslateZ(translateScale);
+		player->SetDirection(Down);
+		break;
+	case'a':
+		//activeCamera->TranslateX(-translateScale);
+		player->SetDirection(Left);
+		break;
+	case'd':
+		//activeCamera->TranslateX(translateScale);
+		player->SetDirection(Right);
+		break;
+	case 'r':
+		init();
+	case '1':
+		activeCamera = defaultCamera;
+		break;
+	case '2':
+		activeCamera = tiltedCamera;
+		break;
+	case '3':
+		break;
+	case '0':
+		for (int i = 0; i < ghosts.size(); i++)
+		{
+			ghosts.at(i)->GetModel()->SetShader(ghostPanicShader);
+			ghosts.at(i)->SetMode(Panic);
+			ghosts.at(i)->SetMovespeed(Ghost::SlowMoveSpeed());
+		}
+		break;
+	case '-':
+		for (int i = 0; i < ghosts.size(); i++)
+		{
+			ghosts.at(i)->GetModel()->SetShader(commonShader);
+			ghosts.at(i)->SetMode(Attack);
+			ghosts.at(i)->SetMovespeed(Ghost::FastMoveSpeed());
+		}
+		break;
+	}
 
+	// we must call these to redraw the scene after we make any changes 
+	glutPostRedisplay();
+}
 
 int main(int argc, char** argv){
 
@@ -298,6 +264,7 @@ int main(int argc, char** argv){
       return 1;
     }
 	// Set up your objects and shaders
+	LoadObjects();
 	init();
 	// Begin infinite event loop
 	glutMainLoop();

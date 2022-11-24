@@ -17,6 +17,7 @@ private:
     std::string directory;
     glm::mat4 ModelTransform;
     glm::vec3 Position;
+    glm::vec3 ObjectColor;
 
     void LoadModel(std::string path)
     {
@@ -121,10 +122,13 @@ private:
     }
 public:
     Model(std::string path, glm::vec3, Shader* Shader);
+    Model(std::string path, glm::vec3 Position, Shader* Shader, glm::vec3 color);
     void Draw();
     void Draw(Shader* shader);
     Shader* GetShader();
     void SetShader(Shader*);
     void SetModelTransform(glm::mat4);
     glm::mat4 GetModelTransform();
+    void SetColor(glm::vec3 color);
+    glm::vec3 GetColor();
 };

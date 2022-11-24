@@ -107,3 +107,9 @@ std::vector<glm::vec3> Arena::GetGhostInitialPositions()
 {
 	return GhostInitialPositions;
 }
+
+
+bool Arena::Collision(glm::vec3 p1, glm::vec3 p2)
+{
+	return WorldToGrid(p1) == WorldToGrid(p2);
+}

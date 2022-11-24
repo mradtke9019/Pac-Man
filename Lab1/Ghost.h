@@ -38,6 +38,7 @@ private:
 public:
 	Ghost(glm::vec3 pos, Shader* shader);
 	Ghost(glm::vec3 pos, Shader* shader, int Momentum);
+	Ghost(glm::vec3 pos, Shader* shader, int Momentum, glm::vec3 color);
 	static float FastMoveSpeed()
 	{
 		return 0.5f;
@@ -47,6 +48,7 @@ public:
 		return 1.05f;
 	}
 	Model* GetModel();
+	void SetPosition(glm::vec3 Position);
 	void Move(Player* player, Arena* arena);
 	void MoveTowardsPlayer(Player* player, Arena* arena);
 	void MoveAwayFromPlayer(Player* player, Arena* arena);
@@ -59,4 +61,5 @@ public:
 	void MoveLeft(Arena* arena);
 	void MoveRight(Arena* arena);
 	void Draw();
+	glm::vec3 GetPosition();
 };
