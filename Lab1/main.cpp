@@ -178,7 +178,6 @@ void init()
 	commonShader->SetUniformVec3("LightPosition", glm::vec3(-1.0, 1.0, -0.3));
 	commonShader->SetUniformVec3("LightDirection", glm::vec3(0.1, -1.0, -0.3));
 	
-
 	ghostPanicShader->SetUniform1f("rand", r);
 	ghostPanicShader->SetUniform1f("time", timeValue);
 	ghostPanicShader->SetUniformMatrix4fv("view", &view);

@@ -152,8 +152,8 @@ Mode Ghost::GetMode()
 
 void Ghost::Draw()
 {
-	model->SetModelTransform(GetModelTransform());
 	model->GetShader()->Use();
+	model->SetModelTransform(GetModelTransform());
 	model->Draw();
 }
 
