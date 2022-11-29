@@ -26,7 +26,6 @@ struct Texture {
 #pragma once
 class Mesh {
 private:
-    //  render data
     unsigned int VAO, VBO, EBO;
     Shader* shader;
 
@@ -34,16 +33,11 @@ private:
 
 public:
     // mesh data
-    std::vector<Vertex>       vertices;
+    std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
-    std::vector<Texture>      textures;
-
+    std::vector<Texture> textures;
     Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures, Shader* shader);
-
     void SetShader(Shader* Shader);
-
-
     Shader* GetShader();
-
     void Draw();
 };

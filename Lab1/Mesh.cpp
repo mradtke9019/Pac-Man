@@ -1,5 +1,6 @@
 #include "Mesh.h"
-
+// Inspiration for Mesh Class and cincepts here
+// https://learnopengl.com/Model-Loading/Mesh
 
 
 void Mesh::setupMesh()

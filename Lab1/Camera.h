@@ -1,6 +1,7 @@
 #pragma once
 #include "ICamera.h"
 
+// Ideas and inspiration from https://learnopengl.com/Getting-started/Camera
 class Camera : public ICamera
 {
 private:
