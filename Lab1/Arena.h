@@ -48,9 +48,9 @@ private:
 					else if (arenaTxt.at(i).at(j) == 'G')
 						GhostInitialPositions.push_back(coordinate);
 					else if (arenaTxt.at(i).at(j) == '.')
-						points.push_back(new Model(pointModelFile, coordinate, shader));
+						points.push_back(new Model(pointModelFile, coordinate, shader, glm::vec3(1.0, 1.0, 0.0)));
 					else if (arenaTxt.at(i).at(j) == 'F')
-						fruits.push_back(new Model("./fruit.obj", coordinate, shader));
+						fruits.push_back(new Model("./fruit.obj", coordinate, shader, glm::vec3(1.0,1.0,0.0)));
 
 					Pathing.push_back(coordinate);
 					PathIndexes.push_back(glm::vec2(j, i));
