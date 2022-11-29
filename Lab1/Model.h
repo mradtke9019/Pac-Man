@@ -7,7 +7,8 @@
 #include <assimp/postprocess.h>
 
 #pragma once
-
+// Ideas used here for model loading via assimp
+// https://learnopengl.com/Model-Loading/
 class Model
 {
 private:

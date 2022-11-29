@@ -47,7 +47,7 @@ Arena* arena;
 
 Player* player;
 
-
+// Idea to use delta frame from here https://learnopengl.com/Getting-started/Camera
 float deltaTime;// Time between current frame and last frame
 float lastFrame; // Time of last frame
 float currentFrame;
