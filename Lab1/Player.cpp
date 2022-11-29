@@ -4,13 +4,18 @@
 
 
 Player::Player(glm::vec3 pos, Shader* shader)
-	: modelPath("./Pacman.obj"), model(nullptr), yaw(-90.0f), pitch(0), roll(90.f), movespeed(1.0f), direction(None)
+	: modelPath("./Pacman.obj"), model(nullptr), yaw(-90.0f), pitch(0), roll(90.f), movespeed(0.06f), direction(None), deltaTime(0.0f)
 {
 	Position = pos;
 	model = new Model(modelPath, Position, shader);
 	model->SetColor(glm::vec3(1.0, 1.0, 0.0));
 	// want to flip the pacman model on its side
 	model->SetModelTransform(GetModelTransform());
+}
+
+void Player::SetDeltaTime(float dT)
+{
+	this->deltaTime = dT;
 }
 
 void Player::SetPosition(glm::vec3 Position)
@@ -70,14 +75,14 @@ void Player::MoveUp(Arena* arena)
 {
 	yaw = 90.f;
 	pitch = 270.0f;
-	glm::vec3 destination = Position - glm::vec3(0, 0, movespeed);
+	glm::vec3 destination = Position - glm::vec3(0, 0, movespeed * deltaTime);
 
 
 	bool valid = arena->IsNavigatable(destination);
 	if (valid) {
 		// If i am moving vertically, I want to clamp my position to the midpoint horizontally
 		Position.x = arena->GetNearestValidPosition(destination).x;
-		Position.z -= movespeed;
+		Position.z -= movespeed * deltaTime;
 	}
 }
 void Player::MoveDown(Arena* arena)
@@ -85,13 +90,13 @@ void Player::MoveDown(Arena* arena)
 	yaw = 90.f;
 	pitch = 90.0f;
 
-	glm::vec3 destination = Position + glm::vec3(0, 0, movespeed);
+	glm::vec3 destination = Position + glm::vec3(0, 0, movespeed * deltaTime);
 	bool valid = arena->IsNavigatable(destination);
 
 	if (valid) {
 
 		Position.x = arena->GetNearestValidPosition(destination).x;
-		Position.z += movespeed;
+		Position.z += movespeed * deltaTime;
 	}
 }
 void Player::MoveLeft(Arena* arena)
@@ -99,12 +104,12 @@ void Player::MoveLeft(Arena* arena)
 	yaw = 90.f;
 	pitch = 180.0f;
 
-	glm::vec3 destination = Position - glm::vec3(movespeed, 0, 0);
+	glm::vec3 destination = Position - glm::vec3(movespeed * deltaTime, 0, 0);
 	bool valid = arena->IsNavigatable(destination);
 	if (valid)
 	{
 		Position.z = arena->GetNearestValidPosition(destination).z;
-		Position.x -= movespeed;
+		Position.x -= movespeed * deltaTime;
 	}
 }
 void Player::MoveRight(Arena* arena)
@@ -112,12 +117,12 @@ void Player::MoveRight(Arena* arena)
 	yaw = -90.f;
 	pitch = 0.0f;	
 
-	glm::vec3 destination = Position + glm::vec3(movespeed, 0, 0);
+	glm::vec3 destination = Position + glm::vec3(movespeed * deltaTime, 0, 0);
 	bool valid = arena->IsNavigatable(destination);
 
 	if (valid)
 	{
 		Position.z = arena->GetNearestValidPosition(destination).z;
-		Position.x += movespeed;
+		Position.x += movespeed * deltaTime;
 	}
 }

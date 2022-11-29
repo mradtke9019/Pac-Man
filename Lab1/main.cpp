@@ -48,6 +48,9 @@ Arena* arena;
 Player* player;
 
 
+float deltaTime;// Time between current frame and last frame
+float lastFrame; // Time of last frame
+float currentFrame;
 
 
 
@@ -60,9 +63,10 @@ void display()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	auto timeValue = glutGet(GLUT_ELAPSED_TIME);
-
-
-
+	currentFrame = timeValue;
+	deltaTime = currentFrame - lastFrame;
+	lastFrame = currentFrame;
+	
 	glm::mat4 view = activeCamera->GetViewTransform();
 	float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 
@@ -76,11 +80,13 @@ void display()
 
 
 
+	player->SetDeltaTime(deltaTime);
 	if (!Pause)
 	{
 		player->Move(arena);
 		for (int i = 0; i < ghosts.size(); i++)
 		{
+			ghosts.at(i)->SetDeltaTime(deltaTime);
 			ghosts.at(i)->Move(player, arena);
 			if (arena->Collision(player->GetPosition(), ghosts.at(i)->GetPosition()))
 			{
@@ -146,7 +152,8 @@ void init()
 {
 	glEnable(GL_DEPTH_TEST);
 	//Color initialzations
-	
+	deltaTime = 0.0f;
+	lastFrame = 0.0f;
 	Pause = false;
 
 	defaultCamera = new FixedCamera(glm::vec3(0.0f, 150.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f));

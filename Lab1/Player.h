@@ -17,6 +17,7 @@ private:
 	float pitch;
 	float roll;
 	float movespeed;
+	float deltaTime;
 	Direction direction;
 
 	glm::mat4 GetModelTransform()
@@ -35,6 +36,7 @@ public:
 	Model* GetModel();
 	glm::vec3 GetPosition();
 	void SetPosition(glm::vec3 Position);
+	void SetDeltaTime(float dT);
 	void SetDirection(Direction direction);
 	void Move(Arena* arena);
 	void MoveUp(Arena* arena);

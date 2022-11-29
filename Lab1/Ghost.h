@@ -21,6 +21,7 @@ private:
 	float pitch;
 	float roll;
 	float MoveSpeed;
+	float deltaTime;
 	int Momentum;
 	int MomentumCount;
 	Direction direction;
@@ -41,14 +42,15 @@ public:
 	Ghost(glm::vec3 pos, Shader* shader, int Momentum, glm::vec3 color);
 	static float FastMoveSpeed()
 	{
-		return 0.5f;
+		return 0.03f;
 	}
 	static float SlowMoveSpeed()
 	{
-		return 1.05f;
+		return 0.03f;
 	}
 	Model* GetModel();
 	void SetPosition(glm::vec3 Position);
+	void SetDeltaTime(float dT);
 	void Move(Player* player, Arena* arena);
 	void MoveTowardsPlayer(Player* player, Arena* arena);
 	void MoveAwayFromPlayer(Player* player, Arena* arena);
