@@ -52,6 +52,9 @@ float deltaTime;// Time between current frame and last frame
 float lastFrame; // Time of last frame
 float currentFrame;
 
+glm::vec3 LightColor;
+glm::vec3 LightPosition; 
+glm::vec3 LightDirection;
 
 
 glm::mat4 GetProjection()
@@ -70,6 +73,11 @@ void display()
 	glm::mat4 view = activeCamera->GetViewTransform();
 	float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 
+
+
+	commonShader->SetUniformVec3("LightColor", LightColor);
+	commonShader->SetUniformVec3("LightPosition", LightPosition);
+	commonShader->SetUniformVec3("LightDirection", LightDirection);
 	commonShader->SetUniform1f("time", timeValue);
 	commonShader->SetUniform1f("rand", r);
 	commonShader->SetUniformMatrix4fv("view", &view);
@@ -156,6 +164,10 @@ void init()
 	lastFrame = 0.0f;
 	Pause = false;
 
+	LightColor = glm::vec3(0.5, 0.5, 0.5);
+	LightPosition = glm::vec3(-1.0, 1.0, -0.3);
+	LightDirection = glm::vec3(0.1, -1.0, -0.3);
+
 	defaultCamera = new FixedCamera(glm::vec3(0.0f, 150.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
 	tiltedCamera = new FixedCamera(glm::vec3(150.0f, 150.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
 	activeCamera = defaultCamera;
@@ -181,9 +193,9 @@ void init()
 	commonShader->SetUniform1f("time", timeValue);
 	commonShader->SetUniformMatrix4fv("view", &view);
 	commonShader->SetUniformMatrix4fv("projection", &projection);
-	commonShader->SetUniformVec3("LightColor", glm::vec3(0.5,0.5,0.5));
-	commonShader->SetUniformVec3("LightPosition", glm::vec3(-1.0, 1.0, -0.3));
-	commonShader->SetUniformVec3("LightDirection", glm::vec3(0.1, -1.0, -0.3));
+	commonShader->SetUniformVec3("LightColor", LightColor);
+	commonShader->SetUniformVec3("LightPosition", LightPosition);
+	commonShader->SetUniformVec3("LightDirection", LightDirection);
 	
 	ghostPanicShader->SetUniform1f("rand", r);
 	ghostPanicShader->SetUniform1f("time", timeValue);
@@ -244,6 +256,18 @@ void keyPress(unsigned char key, int x, int y)
 			ghosts.at(i)->SetMode(Attack);
 			ghosts.at(i)->SetMovespeed(Ghost::FastMoveSpeed());
 		}
+		break;
+	case ';':
+		LightDirection.z -= 1.0f;
+		break;
+	case '\'':
+		LightDirection.z += 1.0f;
+		break;
+	case ',':
+		LightDirection.x -= 1.0f;
+		break;
+	case '.':
+		LightDirection.x += 1.0f;
 		break;
 	}
 
