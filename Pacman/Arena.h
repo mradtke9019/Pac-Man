@@ -9,9 +9,9 @@
 class Arena
 {
 private:
-	std::vector<Model> boxes;
-	std::vector<Model> points;
-	std::vector<Model> fruits;
+	std::vector<Model*> boxes;
+	std::vector<Model*> points;
+	std::vector<Model*> fruits;
 	Shader* shader;
 	float boxWidth;
 	std::string modelFile;
@@ -39,7 +39,7 @@ private:
 			{
 				bool valid = false;
 				if (arenaTxt.at(i).at(j) == '/') {
-					boxes.push_back(Model(modelFile, glm::vec3(j * boxWidth, 0, i * boxWidth) + offset, shader, glm::vec3(0.0,0.0,1.0)));
+					boxes.push_back(new Model(modelFile, glm::vec3(j * boxWidth, 0, i * boxWidth) + offset, shader, glm::vec3(0.0,0.0,1.0)));
 				}
 				else {
 					glm::vec3 coordinate = glm::vec3(j * boxWidth, 0, i * boxWidth) + offset;
@@ -48,9 +48,9 @@ private:
 					else if (arenaTxt.at(i).at(j) == 'G')
 						GhostInitialPositions.push_back(coordinate);
 					else if (arenaTxt.at(i).at(j) == '.')
-						points.push_back(Model(pointModelFile, coordinate, shader, glm::vec3(1.0, 1.0, 0.0)));
+						points.push_back(new Model(pointModelFile, coordinate, shader, glm::vec3(1.0, 1.0, 0.0)));
 					else if (arenaTxt.at(i).at(j) == 'F')
-						fruits.push_back(Model("./fruit.obj", coordinate, shader, glm::vec3(1.0,1.0,0.0)));
+						fruits.push_back(new Model("./fruit.obj", coordinate, shader, glm::vec3(1.0,1.0,0.0)));
 
 					Pathing.push_back(coordinate);
 					PathIndexes.push_back(glm::vec2(j, i));
@@ -68,6 +68,25 @@ public:
 	{
 		ParseArenaFile(arenaFile,shader);
 	}
+	~Arena()
+	{
+		for (int i = 0; i < points.size(); i++)
+		{
+			delete points[i];
+			//points.erase(points.begin() + i);
+		}
+		for (int i = 0; i < fruits.size(); i++)
+		{
+			delete fruits[i];
+			//fruits.erase(fruits.begin() + i);
+		}
+		for (int i = 0; i < boxes.size(); i++)
+		{
+			delete boxes[i];
+			//boxes->erase(boxes->begin() + i);
+		}
+		shader = nullptr;
+	}
 
 	std::vector<std::vector<bool>>* GetValidPathing();
 
@@ -77,9 +96,6 @@ public:
 
 	glm::vec3 GetNearestValidPosition(glm::vec3 Position);
 
-	std::vector<glm::vec3> GetPathing();
-
-	std::vector<glm::vec2> GetPathIndexes();
 
 	// Accepts a position and converts it to the 2D arena grid coordinate
 	glm::vec2 WorldToGrid(glm::vec3 Position);
@@ -87,8 +103,10 @@ public:
 	std::vector<glm::vec3> GetGhostInitialPositions();
 	bool Collision(glm::vec3 p1, glm::vec3 p2);
 	void Draw();
-	std::vector<Model>* GetPoints();
-	std::vector<Model>* GetFruits();
+	std::vector<Model*>* GetPoints();
+	std::vector<Model*>* GetFruits(); 
+	std::vector<Model*>* GetBoxes();
+
 	void SetPoints(std::vector<Model*> p);
 	void SetFruits(std::vector<Model*> f);
 

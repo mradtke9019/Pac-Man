@@ -20,7 +20,6 @@ Model::Model(std::string path, glm::vec3 Position, Shader* Shader, glm::vec3 col
 	LoadModel(path);
 }
 
-
 void Model::Draw()
 {
 	shader->Use();

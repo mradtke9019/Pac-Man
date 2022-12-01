@@ -116,6 +116,9 @@
     <CopyFileToFolders Include="mixkit-winning-an-extra-bonus-2060.wav">
       <Filter>Resource Files</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="mixkit-small-hit-in-a-game-2072.wav">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Model.h">

@@ -34,8 +34,8 @@ ISoundEngine* SoundEngine;
 
 ICamera* activeCamera;
 
-FixedCamera* defaultCamera;
-FixedCamera* tiltedCamera;
+FixedCamera defaultCamera;
+FixedCamera tiltedCamera;
 
 bool Pause;
 
@@ -106,7 +106,7 @@ void display()
 		}
 		for (int i = 0; i < arena->GetPoints()->size(); i++)
 		{
-			if (arena->Collision(player->GetPosition(), arena->GetPoints()->at(i).GetPosition()))
+			if (arena->Collision(player->GetPosition(), arena->GetPoints()->at(i)->GetPosition()))
 			{
 				arena->GetPoints()->erase(arena->GetPoints()->begin() + i);
 				if (arena->GetPoints()->size() == 0 && arena->GetFruits()->size() == 0) 
@@ -114,13 +114,13 @@ void display()
 					Pause = true;
 					SoundEngine->play2D("./mixkit-winning-an-extra-bonus-2060.wav");
 				}
-				else SoundEngine->play2D("./mixkit-player-jumping-in-a-video-game-2043.wav");
+				else SoundEngine->play2D("./mixkit-small-hit-in-a-game-2072.wav");
 				break;
 			}
 		}
 		for (int i = 0; i < arena->GetFruits()->size(); i++)
 		{
-			if (arena->Collision(player->GetPosition(), arena->GetFruits()->at(i).GetPosition()))
+			if (arena->Collision(player->GetPosition(), arena->GetFruits()->at(i)->GetPosition()))
 			{
 				arena->GetFruits()->erase(arena->GetFruits()->begin() + i);
 				if (arena->GetPoints()->size() == 0 && arena->GetFruits()->size() == 0)
@@ -129,7 +129,7 @@ void display()
 					SoundEngine->play2D("./mixkit-winning-an-extra-bonus-2060.wav");
 				}
 				else
-					SoundEngine->play2D("./mixkit-player-jumping-in-a-video-game-2043.wav");
+					SoundEngine->play2D("./mixkit-small-hit-in-a-game-2072.wav");
 				break;
 			}
 		}
@@ -161,14 +161,32 @@ void display()
     glutSwapBuffers();
 }
 
-void LoadObjects()
+void LoadShaders()
 {
 	// Set up the shaders
 	ghostPanicShader = new Shader("./ghostPanicVS.txt", "./ghostPanicFS.txt");
 	commonShader = new Shader("./VS1.txt", "./FS1.txt");
+}
 
-
+void LoadArena()
+{
+	if (arena != nullptr)
+	{
+		delete arena;
+		arena = nullptr;
+	}
+		
 	arena = new Arena("./arena.txt", commonShader);
+}
+
+void LoadCameras()
+{
+	defaultCamera = FixedCamera(glm::vec3(0.0f, 150.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
+	tiltedCamera = FixedCamera(glm::vec3(150.0f, 150.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
+}
+
+void LoadObjects()
+{
 	player = new Player(glm::vec3(0,0,0), commonShader);
 	ghosts = std::vector<Ghost*>();
 	particles = std::vector<Model>();
@@ -196,31 +214,29 @@ void init()
 	lastFrame = 0.0f;
 	Pause = false;
 
+	activeCamera = &defaultCamera;
+
+
+	player->SetPosition(arena->GetPlayerInitialPosition());
+	player->SetDirection(None);
+	for (int i = 0; i < ghosts.size(); i++)
+	{
+		ghosts.at(i)->SetPosition(arena->GetGhostInitialPositions().at(i));
+	}
+
+
 	LightColor = glm::vec3(0.5, 0.5, 0.5);
 	LightPosition = glm::vec3(-1.0, 1.0, -0.3);
 	LightDirection = glm::vec3(0.1, -1.0, -0.3);
 
-	defaultCamera = new FixedCamera(glm::vec3(0.0f, 150.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
-	tiltedCamera = new FixedCamera(glm::vec3(150.0f, 150.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
-	activeCamera = defaultCamera;
-
-	arena = new Arena("./arena.txt", commonShader);
-
 	auto timeValue = glutGet(GLUT_ELAPSED_TIME);
 
 	float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-
 	glm::mat4 view = glm::mat4(1.0f);
 	glm::mat4 projection = glm::mat4(1.0f);
 
 	view = activeCamera->GetViewTransform();
 	projection = GetProjection();
-
-	player->SetPosition(arena->GetPlayerInitialPosition());
-	for (int i = 0; i < ghosts.size(); i++)
-	{
-		ghosts.at(i)->SetPosition(arena->GetGhostInitialPositions().at(i));
-	}
 
 	commonShader->SetUniform1f("rand", r);
 	commonShader->SetUniform1f("time", timeValue);
@@ -266,12 +282,13 @@ void keyPress(unsigned char key, int x, int y)
 		player->SetDirection(Right);
 		break;
 	case 'r':
+		LoadArena();
 		init();
 	case '1':
-		activeCamera = defaultCamera;
+		activeCamera = &defaultCamera;
 		break;
 	case '2':
-		activeCamera = tiltedCamera;
+		activeCamera = &tiltedCamera;
 		break;
 	case '3':
 		break;
@@ -330,6 +347,9 @@ int main(int argc, char** argv){
       return 1;
     }
 	// Set up your objects and shaders
+	LoadShaders();
+	LoadArena();
+	LoadCameras();
 	LoadObjects();
 	init();
 	// Begin infinite event loop
