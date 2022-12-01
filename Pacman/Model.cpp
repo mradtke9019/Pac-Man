@@ -6,6 +6,7 @@ Model::Model(std::string path, glm::vec3 Position, Shader* Shader)
 	shader = Shader;
 	ObjectColor = glm::vec3(1.0,0.0,0.0);
 	ModelTransform = glm::translate(glm::mat4(1.0f), Position);
+	this->Position = Position;
 	LoadModel(path);
 }
 
@@ -14,6 +15,7 @@ Model::Model(std::string path, glm::vec3 Position, Shader* Shader, glm::vec3 col
 {
 	shader = Shader;
 	ObjectColor = color;
+	this->Position = Position;
 	ModelTransform = glm::translate(glm::mat4(1.0f), Position);
 	LoadModel(path);
 }
@@ -72,4 +74,10 @@ void Model::SetColor(glm::vec3 color)
 glm::vec3 Model::GetColor()
 {
 	return this->ObjectColor;
+}
+
+
+glm::vec3 Model::GetPosition()
+{
+	return this->Position;
 }

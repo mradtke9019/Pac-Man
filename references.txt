@@ -14,3 +14,6 @@ Defeat Sound found here:
 https://orangefreesounds.com/pacman-death-sound/
 
 Point and Box Objects created manually
+
+Point pickup sound
+https://mixkit.co/free-sound-effects/game/

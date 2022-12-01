@@ -3,21 +3,21 @@ void Arena::Draw()
 {
 	for (int i = 0; i < boxes.size(); i++)
 	{
-		boxes.at(i)->GetShader()->Use();
-		boxes.at(i)->SetModelTransform(boxes.at(i)->GetModelTransform());
-		boxes.at(i)->Draw();
+		boxes.at(i).GetShader()->Use();
+		boxes.at(i).SetModelTransform(boxes.at(i).GetModelTransform());
+		boxes.at(i).Draw();
 	}
 	for (int i = 0; i < points.size(); i++)
 	{
-		points.at(i)->GetShader()->Use();
-		points.at(i)->SetModelTransform(points.at(i)->GetModelTransform());
-		points.at(i)->Draw();
+		points.at(i).GetShader()->Use();
+		points.at(i).SetModelTransform(points.at(i).GetModelTransform());
+		points.at(i).Draw();
 	}
 	for (int i = 0; i < fruits.size(); i++)
 	{
-		fruits.at(i)->GetShader()->Use();
-		fruits.at(i)->SetModelTransform(fruits.at(i)->GetModelTransform());
-		fruits.at(i)->Draw();
+		fruits.at(i).GetShader()->Use();
+		fruits.at(i).SetModelTransform(fruits.at(i).GetModelTransform());
+		fruits.at(i).Draw();
 	}
 }
 std::vector<std::vector<bool>>* Arena::GetValidPathing()
@@ -112,4 +112,15 @@ std::vector<glm::vec3> Arena::GetGhostInitialPositions()
 bool Arena::Collision(glm::vec3 p1, glm::vec3 p2)
 {
 	return WorldToGrid(p1) == WorldToGrid(p2);
+}
+
+
+std::vector<Model>* Arena::GetPoints()
+{
+	return &points;
+};
+
+std::vector<Model>* Arena::GetFruits()
+{
+	return &fruits;
 }

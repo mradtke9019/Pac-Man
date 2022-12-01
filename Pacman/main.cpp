@@ -22,8 +22,8 @@
 #include <irrKlang.h>
 // Macro for indexing vertex buffer
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
-#define Width 800
-#define Height 600
+int Width;
+int Height;
 
 using namespace std;
 using namespace irrklang;
@@ -59,7 +59,7 @@ glm::vec3 LightDirection;
 
 glm::mat4 GetProjection()
 {
-	return glm::perspective(glm::radians(60.0f), (float)Width / (float)Height, 0.1f, 300.0f);
+	return glm::perspective(glm::radians(60.0f), (float)glutGet(GLUT_WINDOW_WIDTH) / (float)glutGet(GLUT_WINDOW_HEIGHT), 0.1f, 300.0f);
 }
 
 void display()
@@ -73,7 +73,7 @@ void display()
 	glm::mat4 view = activeCamera->GetViewTransform();
 	float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 
-
+	glm::mat4 projection = GetProjection();
 
 	commonShader->SetUniformVec3("LightColor", LightColor);
 	commonShader->SetUniformVec3("LightPosition", LightPosition);
@@ -81,10 +81,12 @@ void display()
 	commonShader->SetUniform1f("time", timeValue);
 	commonShader->SetUniform1f("rand", r);
 	commonShader->SetUniformMatrix4fv("view", &view);
+	commonShader->SetUniformMatrix4fv("projection", &projection);
 	
 	ghostPanicShader->SetUniform1f("time", timeValue);
 	ghostPanicShader->SetUniform1f("rand", r);
 	ghostPanicShader->SetUniformMatrix4fv("view", &view);
+	ghostPanicShader->SetUniformMatrix4fv("projection", &projection);
 
 
 
@@ -102,6 +104,36 @@ void display()
 				SoundEngine->play2D("./Pacman-death-sound.mp3");
 			}
 		}
+		for (int i = 0; i < arena->GetPoints()->size(); i++)
+		{
+			if (arena->Collision(player->GetPosition(), arena->GetPoints()->at(i).GetPosition()))
+			{
+				arena->GetPoints()->erase(arena->GetPoints()->begin() + i);
+				if (arena->GetPoints()->size() == 0 && arena->GetFruits()->size() == 0) 
+				{
+					Pause = true;
+					SoundEngine->play2D("./mixkit-winning-an-extra-bonus-2060.wav");
+				}
+				else SoundEngine->play2D("./mixkit-player-jumping-in-a-video-game-2043.wav");
+				break;
+			}
+		}
+		for (int i = 0; i < arena->GetFruits()->size(); i++)
+		{
+			if (arena->Collision(player->GetPosition(), arena->GetFruits()->at(i).GetPosition()))
+			{
+				arena->GetFruits()->erase(arena->GetFruits()->begin() + i);
+				if (arena->GetPoints()->size() == 0 && arena->GetFruits()->size() == 0)
+				{
+					Pause = true;
+					SoundEngine->play2D("./mixkit-winning-an-extra-bonus-2060.wav");
+				}
+				else
+					SoundEngine->play2D("./mixkit-player-jumping-in-a-video-game-2043.wav");
+				break;
+			}
+		}
+
 	}
 	arena->Draw();
 	for (int i = 0; i < ghosts.size(); i++)
@@ -172,6 +204,7 @@ void init()
 	tiltedCamera = new FixedCamera(glm::vec3(150.0f, 150.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
 	activeCamera = defaultCamera;
 
+	arena = new Arena("./arena.txt", commonShader);
 
 	auto timeValue = glutGet(GLUT_ELAPSED_TIME);
 
@@ -204,6 +237,7 @@ void init()
 
 	SoundEngine->play2D("./intro.wav");
 }
+
 
 // function to allow keyboard control
 // it's called a callback function and must be registerd in main() using glutKeyboardFunc();
@@ -276,16 +310,18 @@ void keyPress(unsigned char key, int x, int y)
 }
 
 int main(int argc, char** argv){
-
+	Width = 800;
+	Height = 600;
 	// Set up the window
 	glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGB);
     glutInitWindowSize(Width, Height);
-    glutCreateWindow("Matt Radtke - Graphics"); 
+    glutCreateWindow("Pacman"); 
 	// Tell glut where the display function is
 	glutDisplayFunc(display);
 	glutKeyboardFunc(keyPress); // allows for keyboard control. See keyPress function above
-
+		// set reshape callback for current window
+		
 	 // A call to glewInit() must be done after glut is initialized!
     GLenum res = glewInit();
 	// Check for any errors

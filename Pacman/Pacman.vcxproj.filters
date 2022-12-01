@@ -110,6 +110,12 @@
     <CopyFileToFolders Include="intro.wav">
       <Filter>Resource Files</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="mixkit-player-jumping-in-a-video-game-2043.wav">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="mixkit-winning-an-extra-bonus-2060.wav">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Model.h">
