@@ -14,9 +14,9 @@ glm::vec3 FixedCamera::GetPosition()
 	return Position;
 }
 
-glm::mat4 FixedCamera::GetViewTransform()
+glm::mat4* FixedCamera::GetViewTransform()
 {
-	return View;
+	return &View;
 };
 
 void FixedCamera::SetPosition(glm::vec3 position)

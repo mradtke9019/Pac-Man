@@ -67,10 +67,10 @@ glm::vec3 Camera::GetPosition()
 	return Position;
 }
 
-glm::mat4 Camera::GetViewTransform()
+glm::mat4* Camera::GetViewTransform()
 {
 	CalculateView();
-	return View;
+	return &View;
 };
 
 void Camera::RotatePitch(float theta)

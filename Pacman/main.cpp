@@ -1,4 +1,3 @@
-
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 #include <iostream>
@@ -28,8 +27,8 @@ int Height;
 using namespace std;
 using namespace irrklang;
 
-Shader* ghostPanicShader;
-Shader* commonShader;
+Shader ghostPanicShader;
+Shader commonShader;
 ISoundEngine* SoundEngine;
 
 ICamera* activeCamera;
@@ -70,23 +69,22 @@ void display()
 	deltaTime = currentFrame - lastFrame;
 	lastFrame = currentFrame;
 	
-	glm::mat4 view = activeCamera->GetViewTransform();
 	float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 
 	glm::mat4 projection = GetProjection();
 
-	commonShader->SetUniformVec3("LightColor", LightColor);
-	commonShader->SetUniformVec3("LightPosition", LightPosition);
-	commonShader->SetUniformVec3("LightDirection", LightDirection);
-	commonShader->SetUniform1f("time", timeValue);
-	commonShader->SetUniform1f("rand", r);
-	commonShader->SetUniformMatrix4fv("view", &view);
-	commonShader->SetUniformMatrix4fv("projection", &projection);
+	commonShader.SetUniformVec3("LightColor", LightColor);
+	commonShader.SetUniformVec3("LightPosition", LightPosition);
+	commonShader.SetUniformVec3("LightDirection", LightDirection);
+	commonShader.SetUniform1f("time", timeValue);
+	commonShader.SetUniform1f("rand", r);
+	commonShader.SetUniformMatrix4fv("view", activeCamera->GetViewTransform());
+	commonShader.SetUniformMatrix4fv("projection", &projection);
 	
-	ghostPanicShader->SetUniform1f("time", timeValue);
-	ghostPanicShader->SetUniform1f("rand", r);
-	ghostPanicShader->SetUniformMatrix4fv("view", &view);
-	ghostPanicShader->SetUniformMatrix4fv("projection", &projection);
+	ghostPanicShader.SetUniform1f("time", timeValue);
+	ghostPanicShader.SetUniform1f("rand", r);
+	ghostPanicShader.SetUniformMatrix4fv("view", activeCamera->GetViewTransform());
+	ghostPanicShader.SetUniformMatrix4fv("projection", &projection);
 
 
 
@@ -106,7 +104,7 @@ void display()
 		}
 		for (int i = 0; i < arena->GetPoints()->size(); i++)
 		{
-			if (arena->Collision(player->GetPosition(), arena->GetPoints()->at(i)->GetPosition()))
+			if (arena->Collision(player->GetPosition(), arena->GetPoints()->at(i).GetPosition()))
 			{
 				arena->GetPoints()->erase(arena->GetPoints()->begin() + i);
 				if (arena->GetPoints()->size() == 0 && arena->GetFruits()->size() == 0) 
@@ -120,7 +118,7 @@ void display()
 		}
 		for (int i = 0; i < arena->GetFruits()->size(); i++)
 		{
-			if (arena->Collision(player->GetPosition(), arena->GetFruits()->at(i)->GetPosition()))
+			if (arena->Collision(player->GetPosition(), arena->GetFruits()->at(i).GetPosition()))
 			{
 				arena->GetFruits()->erase(arena->GetFruits()->begin() + i);
 				if (arena->GetPoints()->size() == 0 && arena->GetFruits()->size() == 0)
@@ -164,8 +162,8 @@ void display()
 void LoadShaders()
 {
 	// Set up the shaders
-	ghostPanicShader = new Shader("./ghostPanicVS.txt", "./ghostPanicFS.txt");
-	commonShader = new Shader("./VS1.txt", "./FS1.txt");
+	ghostPanicShader = Shader("./ghostPanicVS.txt", "./ghostPanicFS.txt");
+	commonShader = Shader("./VS1.txt", "./FS1.txt");
 }
 
 void LoadArena()
@@ -176,7 +174,7 @@ void LoadArena()
 		arena = nullptr;
 	}
 		
-	arena = new Arena("./arena.txt", commonShader);
+	arena = new Arena("./arena.txt", &commonShader);
 }
 
 void LoadCameras()
@@ -187,7 +185,7 @@ void LoadCameras()
 
 void LoadObjects()
 {
-	player = new Player(glm::vec3(0,0,0), commonShader);
+	player = new Player(glm::vec3(0,0,0), &commonShader);
 	ghosts = std::vector<Ghost*>();
 	particles = std::vector<Model>();
 
@@ -197,11 +195,11 @@ void LoadObjects()
 			static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
 			static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
 			static_cast <float> (rand()) / static_cast <float> (RAND_MAX));
-		ghosts.push_back(new Ghost(glm::vec3(0,0,0), commonShader, i * 5, randomColor));
+		ghosts.push_back(new Ghost(glm::vec3(0,0,0), &commonShader, i * 5, randomColor));
 	}
 
 	for (int i = 0; i < 6; i++) {
-		particles.push_back(Model("./point.obj", player->GetPosition(), commonShader, glm::vec3(1.0, 0.0, 1.0)));
+		particles.push_back(Model("./point.obj", player->GetPosition(), &commonShader, glm::vec3(1.0, 0.0, 1.0)));
 	}
 	SoundEngine = createIrrKlangDevice();
 }
@@ -209,13 +207,9 @@ void LoadObjects()
 void init()
 {
 	glEnable(GL_DEPTH_TEST);
-	//Color initialzations
-	deltaTime = 0.0f;
-	lastFrame = 0.0f;
 	Pause = false;
 
 	activeCamera = &defaultCamera;
-
 
 	player->SetPosition(arena->GetPlayerInitialPosition());
 	player->SetDirection(None);
@@ -224,32 +218,9 @@ void init()
 		ghosts.at(i)->SetPosition(arena->GetGhostInitialPositions().at(i));
 	}
 
-
 	LightColor = glm::vec3(0.5, 0.5, 0.5);
 	LightPosition = glm::vec3(-1.0, 1.0, -0.3);
 	LightDirection = glm::vec3(0.1, -1.0, -0.3);
-
-	auto timeValue = glutGet(GLUT_ELAPSED_TIME);
-
-	float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-	glm::mat4 view = glm::mat4(1.0f);
-	glm::mat4 projection = glm::mat4(1.0f);
-
-	view = activeCamera->GetViewTransform();
-	projection = GetProjection();
-
-	commonShader->SetUniform1f("rand", r);
-	commonShader->SetUniform1f("time", timeValue);
-	commonShader->SetUniformMatrix4fv("view", &view);
-	commonShader->SetUniformMatrix4fv("projection", &projection);
-	commonShader->SetUniformVec3("LightColor", LightColor);
-	commonShader->SetUniformVec3("LightPosition", LightPosition);
-	commonShader->SetUniformVec3("LightDirection", LightDirection);
-	
-	ghostPanicShader->SetUniform1f("rand", r);
-	ghostPanicShader->SetUniform1f("time", timeValue);
-	ghostPanicShader->SetUniformMatrix4fv("view", &view);
-	ghostPanicShader->SetUniformMatrix4fv("projection", &projection);
 
 	SoundEngine->play2D("./intro.wav");
 }
@@ -295,7 +266,7 @@ void keyPress(unsigned char key, int x, int y)
 	case '0':
 		for (int i = 0; i < ghosts.size(); i++)
 		{
-			ghosts.at(i)->GetModel()->SetShader(ghostPanicShader);
+			ghosts.at(i)->GetModel()->SetShader(&ghostPanicShader);
 			ghosts.at(i)->SetMode(Panic);
 			ghosts.at(i)->SetMovespeed(Ghost::SlowMoveSpeed());
 		}
@@ -303,7 +274,7 @@ void keyPress(unsigned char key, int x, int y)
 	case '-':
 		for (int i = 0; i < ghosts.size(); i++)
 		{
-			ghosts.at(i)->GetModel()->SetShader(commonShader);
+			ghosts.at(i)->GetModel()->SetShader(&commonShader);
 			ghosts.at(i)->SetMode(Attack);
 			ghosts.at(i)->SetMovespeed(Ghost::FastMoveSpeed());
 		}

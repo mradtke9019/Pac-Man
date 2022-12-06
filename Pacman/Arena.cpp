@@ -3,21 +3,21 @@ void Arena::Draw()
 {
 	for (int i = 0; i < boxes.size(); i++)
 	{
-		boxes.at(i)->GetShader()->Use();
-		boxes.at(i)->SetModelTransform(boxes.at(i)->GetModelTransform());
-		boxes.at(i)->Draw();
+		boxes[i].GetShader()->Use();
+		boxes[i].SetModelTransform(boxes[i].GetModelTransform());
+		boxes[i].Draw();
 	}
 	for (int i = 0; i < points.size(); i++)
 	{
-		points.at(i)->GetShader()->Use();
-		points.at(i)->SetModelTransform(points.at(i)->GetModelTransform());
-		points.at(i)->Draw();
+		points[i].GetShader()->Use();
+		points[i].SetModelTransform(points[i].GetModelTransform());
+		points[i].Draw();
 	}
 	for (int i = 0; i < fruits.size(); i++)
 	{
-		fruits.at(i)->GetShader()->Use();
-		fruits.at(i)->SetModelTransform(fruits.at(i)->GetModelTransform());
-		fruits.at(i)->Draw();
+		fruits[i].GetShader()->Use();
+		fruits[i].SetModelTransform(fruits[i].GetModelTransform());
+		fruits[i].Draw();
 	}
 }
 std::vector<std::vector<bool>>* Arena::GetValidPathing()
@@ -110,16 +110,16 @@ bool Arena::Collision(glm::vec3 p1, glm::vec3 p2)
 }
 
 
-std::vector<Model*>* Arena::GetPoints()
+std::vector<Model>* Arena::GetPoints()
 {
 	return &points;
 };
 
-std::vector<Model*>* Arena::GetFruits()
+std::vector<Model>* Arena::GetFruits()
 {
 	return &fruits;
 }
-std::vector<Model*>* Arena::GetBoxes()
+std::vector<Model>* Arena::GetBoxes()
 {
 	return &boxes;
 }

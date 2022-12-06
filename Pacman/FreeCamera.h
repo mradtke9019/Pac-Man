@@ -31,7 +31,7 @@ public:
 
 	void CalculateView();
 
-	glm::mat4 GetViewTransform();
+	glm::mat4* GetViewTransform();
 
 	glm::vec3 GetPosition();
 

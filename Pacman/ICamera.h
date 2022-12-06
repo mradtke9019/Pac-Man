@@ -21,7 +21,7 @@ private:
 
 public:
 
-	virtual glm::mat4 GetViewTransform() = 0;
+	virtual glm::mat4* GetViewTransform() = 0;
 	virtual glm::vec3 GetPosition() = 0;
 
 	virtual void TranslateX(float) = 0;

@@ -17,7 +17,7 @@ public:
 	FixedCamera(){};
 	FixedCamera(glm::vec3, glm::vec3, glm::vec3);
 
-	glm::mat4 GetViewTransform();
+	glm::mat4* GetViewTransform();
 
 	glm::vec3 GetPosition();
 

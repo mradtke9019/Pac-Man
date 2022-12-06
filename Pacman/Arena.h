@@ -9,9 +9,9 @@
 class Arena
 {
 private:
-	std::vector<Model*> boxes;
-	std::vector<Model*> points;
-	std::vector<Model*> fruits;
+	std::vector<Model> boxes;
+	std::vector<Model> points;
+	std::vector<Model> fruits;
 	Shader* shader;
 	float boxWidth;
 	std::string modelFile;
@@ -21,16 +21,20 @@ private:
 	std::vector<glm::vec3> Pathing;
 	std::vector<glm::vec2> PathIndexes;
 	std::vector<std::vector<bool>> ValidPathing;
+	std::vector<std::string> arenaTxt;
 
-	void ParseArenaFile(std::string file, Shader* shader)
+	void LoadArenaFile(std::string file)
 	{
-		std::vector<std::string> arenaTxt;
 		std::ifstream is(file);
 		std::string str;
 		while (getline(is, str))
 		{
 			arenaTxt.push_back(str);
 		}
+	}
+
+	void ParseArenaFile(Shader* shader)
+	{
 		glm::vec3 offset = glm::vec3(-1.0f * boxWidth * (float)arenaTxt.at(0).size() / 2.0f , 0.0f, -1.0f * boxWidth * (float)arenaTxt.size() / 2.0f);
 		for (int i = 0; i < arenaTxt.size(); i++)
 		{
@@ -39,7 +43,7 @@ private:
 			{
 				bool valid = false;
 				if (arenaTxt.at(i).at(j) == '/') {
-					boxes.push_back(new Model(modelFile, glm::vec3(j * boxWidth, 0, i * boxWidth) + offset, shader, glm::vec3(0.0,0.0,1.0)));
+					boxes.push_back(Model(modelFile, glm::vec3(j * boxWidth, 0, i * boxWidth) + offset, shader, glm::vec3(0.0,0.0,1.0)));
 				}
 				else {
 					glm::vec3 coordinate = glm::vec3(j * boxWidth, 0, i * boxWidth) + offset;
@@ -48,9 +52,9 @@ private:
 					else if (arenaTxt.at(i).at(j) == 'G')
 						GhostInitialPositions.push_back(coordinate);
 					else if (arenaTxt.at(i).at(j) == '.')
-						points.push_back(new Model(pointModelFile, coordinate, shader, glm::vec3(1.0, 1.0, 0.0)));
+						points.push_back(Model(pointModelFile, coordinate, shader, glm::vec3(1.0, 1.0, 0.0)));
 					else if (arenaTxt.at(i).at(j) == 'F')
-						fruits.push_back(new Model("./fruit.obj", coordinate, shader, glm::vec3(1.0,1.0,0.0)));
+						fruits.push_back(Model("./fruit.obj", coordinate, shader, glm::vec3(1.0,1.0,0.0)));
 
 					Pathing.push_back(coordinate);
 					PathIndexes.push_back(glm::vec2(j, i));
@@ -66,26 +70,17 @@ public:
 	Arena(std::string arenaFile, Shader* shader)
 		: boxWidth(7.0f), modelFile("./box.obj"), pointModelFile("./point.obj")
 	{
-		ParseArenaFile(arenaFile,shader);
+		LoadArenaFile(arenaFile);
+		ParseArenaFile(shader);
 	}
 	~Arena()
 	{
-		for (int i = 0; i < points.size(); i++)
-		{
-			delete points[i];
-			//points.erase(points.begin() + i);
-		}
-		for (int i = 0; i < fruits.size(); i++)
-		{
-			delete fruits[i];
-			//fruits.erase(fruits.begin() + i);
-		}
-		for (int i = 0; i < boxes.size(); i++)
-		{
-			delete boxes[i];
-			//boxes->erase(boxes->begin() + i);
-		}
-		shader = nullptr;
+
+	}
+
+	void Reset()
+	{
+
 	}
 
 	std::vector<std::vector<bool>>* GetValidPathing();
@@ -103,9 +98,9 @@ public:
 	std::vector<glm::vec3> GetGhostInitialPositions();
 	bool Collision(glm::vec3 p1, glm::vec3 p2);
 	void Draw();
-	std::vector<Model*>* GetPoints();
-	std::vector<Model*>* GetFruits(); 
-	std::vector<Model*>* GetBoxes();
+	std::vector<Model>* GetPoints();
+	std::vector<Model>* GetFruits(); 
+	std::vector<Model>* GetBoxes();
 
 	void SetPoints(std::vector<Model*> p);
 	void SetFruits(std::vector<Model*> f);

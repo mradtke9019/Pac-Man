@@ -67,9 +67,7 @@ public:
                 {
                     d = paths[curr];
                     curr = CalculateCoordinate(curr, OppositeDirection(d));
-                    //std::cout << curr.first << "," << curr.second << " (" << ToString(d) << ") ";
                 }
-                //std::cout << std::endl;
                 return d;
             }
 
