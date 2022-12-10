@@ -122,6 +122,7 @@ private:
         return textures;
     }
 public:
+    Model() {};
     Model(std::string path, glm::vec3, Shader* Shader);
     Model(std::string path, glm::vec3 Position, Shader* Shader, glm::vec3 color);
     void Draw();

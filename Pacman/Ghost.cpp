@@ -4,7 +4,7 @@
 
 
 Ghost::Ghost(glm::vec3 pos, Shader* shader)
-	: modelPath("./Ghost.obj"), model(nullptr), yaw(-90.0f), pitch(0), roll(90.f), MoveSpeed(FastMoveSpeed()), mode(Attack), Momentum(50), MomentumCount(0), deltaTime(0.0f)
+	: modelPath("./Ghost.obj"), model(nullptr), yaw(-90.0f), pitch(0), roll(90.f), MoveSpeed(FastMoveSpeed()), mode(Attack), Momentum(50), MomentumCount(0), deltaTime(0.0f), panicTime(0.0f)
 {
 	Position = pos;
 	model = new Model(modelPath, Position, shader);
@@ -13,7 +13,7 @@ Ghost::Ghost(glm::vec3 pos, Shader* shader)
 }
 
 Ghost::Ghost(glm::vec3 pos, Shader* shader, int Momentum)
-	: modelPath("./Ghost.obj"), model(nullptr), yaw(-90.0f), pitch(0), roll(90.f), MoveSpeed(FastMoveSpeed()), mode(Attack), MomentumCount(0), deltaTime(0.0f)
+	: modelPath("./Ghost.obj"), model(nullptr), yaw(-90.0f), pitch(0), roll(90.f), MoveSpeed(FastMoveSpeed()), mode(Attack), MomentumCount(0), deltaTime(0.0f), panicTime(0.0f)
 {
 	Position = pos;
 	this->Momentum = Momentum;
@@ -25,7 +25,7 @@ Ghost::Ghost(glm::vec3 pos, Shader* shader, int Momentum)
 
 
 Ghost::Ghost(glm::vec3 pos, Shader* shader, int Momentum, glm::vec3 color)
-	: modelPath("./Ghost.obj"), model(nullptr), yaw(-90.0f), pitch(0), roll(90.f), MoveSpeed(FastMoveSpeed()), mode(Attack), MomentumCount(0), deltaTime(0.0f)
+	: modelPath("./Ghost.obj"), model(nullptr), yaw(-90.0f), pitch(0), roll(90.f), MoveSpeed(FastMoveSpeed()), mode(Attack), MomentumCount(0), deltaTime(0.0f), panicTime(0.0f)
 {
 	Position = pos;
 	this->Momentum = Momentum;
@@ -46,14 +46,21 @@ void Ghost::SetPosition(glm::vec3 Position)
 	this->Position = Position;
 }
 
-void Ghost::Move(Player* player, Arena* arena)
+void Ghost::Move(Player* player, Arena* arena, Shader* shader)
 {
+	model->SetShader(shader);
 	switch(mode)
 	{
 	case Attack:
 		MoveTowardsPlayer(player, arena);
 		break;
 	case Panic:
+		panicTime += deltaTime;
+		if (panicTime > panicThreshold())
+		{
+			panicTime = 0.0f;
+			mode = Attack;
+		}
 		MoveAwayFromPlayer(player, arena);
 		break;
 	}

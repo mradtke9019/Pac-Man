@@ -50,6 +50,10 @@ Player* player;
 float deltaTime;// Time between current frame and last frame
 float lastFrame; // Time of last frame
 float currentFrame;
+float teleportCooldown;
+const float teleportThreshold = 100.0f;
+
+const float ghostPanicDuration = 1000.0f;
 
 glm::vec3 LightColor;
 glm::vec3 LightPosition; 
@@ -68,6 +72,7 @@ void display()
 	currentFrame = timeValue;
 	deltaTime = currentFrame - lastFrame;
 	lastFrame = currentFrame;
+	teleportCooldown += deltaTime;
 	
 	float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 
@@ -95,40 +100,77 @@ void display()
 		for (int i = 0; i < ghosts.size(); i++)
 		{
 			ghosts.at(i)->SetDeltaTime(deltaTime);
-			ghosts.at(i)->Move(player, arena);
-			if (arena->Collision(player->GetPosition(), ghosts.at(i)->GetPosition()))
+			Shader* s = nullptr;
+			if (ghosts.at(i)->GetMode() == Attack)
+				s = &commonShader;
+			else if (ghosts.at(i)->GetMode() == Panic)
+				s = &ghostPanicShader;
+			ghosts.at(i)->Move(player, arena, s);
+			bool collision = arena->Collision(player->GetPosition(), ghosts.at(i)->GetPosition());
+			Mode mode = ghosts.at(i)->GetMode();
+			if (mode == Attack && collision)
 			{
 				Pause = true;
 				SoundEngine->play2D("./Pacman-death-sound.mp3");
 			}
-		}
-		for (int i = 0; i < arena->GetPoints()->size(); i++)
-		{
-			if (arena->Collision(player->GetPosition(), arena->GetPoints()->at(i).GetPosition()))
+			else if (mode == Panic && collision)
 			{
-				arena->GetPoints()->erase(arena->GetPoints()->begin() + i);
-				if (arena->GetPoints()->size() == 0 && arena->GetFruits()->size() == 0) 
+				ghosts.at(i)->SetPosition(arena->GetGhostInitialPositions().at(0));
+				ghosts.at(i)->SetMode(Attack);
+			}
+		}
+		for (int i = 0; i < arena->GetArenaObjects()->size(); i++)
+		{
+			LightModel curr = arena->GetArenaObjects()->at(i);
+			Type t = curr.type;
+			bool collision = arena->Collision(player->GetPosition(), curr.Position);
+
+			if ((t == Point || t == Fruit) && collision)
+			{
+				if (t == Fruit)
+				{
+					for (int i = 0; i < ghosts.size(); i++)
+					{
+						ghosts.at(i)->SetMode(Panic);
+					}
+				}
+				arena->GetArenaObjects()->erase(arena->GetArenaObjects()->begin() + i);
+				bool pointsLeft = false;
+				for (int j = 0; j < arena->GetArenaObjects()->size(); j++)
+				{
+					if (arena->GetArenaObjects()->at(j).type == Point || arena->GetArenaObjects()->at(j).type == Fruit)
+					{
+						pointsLeft = true;
+						break;
+					}
+				}
+				if (!pointsLeft)
 				{
 					Pause = true;
 					SoundEngine->play2D("./mixkit-winning-an-extra-bonus-2060.wav");
 				}
-				else SoundEngine->play2D("./mixkit-small-hit-in-a-game-2072.wav");
+				else 
+				{
+					SoundEngine->play2D("./mixkit-small-hit-in-a-game-2072.wav");
+				}
 				break;
 			}
 		}
-		for (int i = 0; i < arena->GetFruits()->size(); i++)
+
+		if (teleportCooldown > teleportThreshold)
 		{
-			if (arena->Collision(player->GetPosition(), arena->GetFruits()->at(i).GetPosition()))
+			//Relying on there being only 2 teleport points
+			for (int i = 0; i < arena->GetTeleportPoints()->size(); i++)
 			{
-				arena->GetFruits()->erase(arena->GetFruits()->begin() + i);
-				if (arena->GetPoints()->size() == 0 && arena->GetFruits()->size() == 0)
+				teleportCooldown = 0.0;
+				if (arena->Collision(player->GetPosition(), arena->GetTeleportPoints()->at(i)))
 				{
-					Pause = true;
-					SoundEngine->play2D("./mixkit-winning-an-extra-bonus-2060.wav");
+					if (i == 0)
+						player->SetPosition(arena->GetTeleportPoints()->at(1));
+					else if (i == 1)
+						player->SetPosition(arena->GetTeleportPoints()->at(0));
+					break;
 				}
-				else
-					SoundEngine->play2D("./mixkit-small-hit-in-a-game-2072.wav");
-				break;
 			}
 		}
 
@@ -208,7 +250,7 @@ void init()
 {
 	glEnable(GL_DEPTH_TEST);
 	Pause = false;
-
+	teleportCooldown = 0.0f;
 	activeCamera = &defaultCamera;
 
 	player->SetPosition(arena->GetPlayerInitialPosition());
@@ -216,6 +258,7 @@ void init()
 	for (int i = 0; i < ghosts.size(); i++)
 	{
 		ghosts.at(i)->SetPosition(arena->GetGhostInitialPositions().at(i));
+		ghosts.at(i)->SetMode(Attack);
 	}
 
 	LightColor = glm::vec3(0.5, 0.5, 0.5);
@@ -236,22 +279,27 @@ void keyPress(unsigned char key, int x, int y)
 	case' ':
 		Pause = !Pause;
 		break;
+	case 'W':
 	case'w':
 		//activeCamera->TranslateZ(-translateScale);
 		player->SetDirection(Up);
 		break;
+	case'S':
 	case's':
 		//activeCamera->TranslateZ(translateScale);
 		player->SetDirection(Down);
 		break;
+	case'A':
 	case'a':
 		//activeCamera->TranslateX(-translateScale);
 		player->SetDirection(Left);
 		break;
+	case'D':
 	case'd':
 		//activeCamera->TranslateX(translateScale);
 		player->SetDirection(Right);
 		break;
+	case 'R':
 	case 'r':
 		LoadArena();
 		init();
@@ -297,6 +345,27 @@ void keyPress(unsigned char key, int x, int y)
 	glutPostRedisplay();
 }
 
+//https://community.khronos.org/t/what-are-the-codes-for-arrow-keys-to-use-in-glut-keyboard-callback-function/26457/2
+void altKeyPress(int key, int x, int y)
+{
+	switch (key)
+	{
+	case GLUT_KEY_UP:
+		player->SetDirection(Up);
+		break;
+	case GLUT_KEY_DOWN:
+		player->SetDirection(Down);
+		break;
+	case GLUT_KEY_LEFT:
+		player->SetDirection(Left);
+		break;
+	case GLUT_KEY_RIGHT:
+		player->SetDirection(Right);
+		break;
+	}
+	glutPostRedisplay();
+}
+
 int main(int argc, char** argv){
 	Width = 800;
 	Height = 600;
@@ -307,9 +376,8 @@ int main(int argc, char** argv){
     glutCreateWindow("Pacman"); 
 	// Tell glut where the display function is
 	glutDisplayFunc(display);
-	glutKeyboardFunc(keyPress); // allows for keyboard control. See keyPress function above
-		// set reshape callback for current window
-		
+	glutKeyboardFunc(keyPress); 
+	glutSpecialFunc(altKeyPress);
 	 // A call to glewInit() must be done after glut is initialized!
     GLenum res = glewInit();
 	// Check for any errors

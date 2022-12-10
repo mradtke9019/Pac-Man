@@ -14,6 +14,7 @@ class Ghost
 {
 private:
 	Mode mode;
+	float panicTime;
 	Model* model;
 	glm::vec3 Position;
 	std::string modelPath;
@@ -25,12 +26,8 @@ private:
 	int Momentum;
 	int MomentumCount;
 	Direction direction;
-
 	glm::mat4 GetModelTransform()
 	{
-		//glm::rotate(glm::mat4(1.0f), RotateZ, glm::vec3(0.0f, 0.0f, 1.0f))*
-		//	glm::rotate(glm::mat4(1.0f), RotateY, glm::vec3(0.0f, 1.0f, 0.0f))*
-		//	glm::rotate(glm::mat4(1.0f), RotateX, glm::vec3(1.0f, 0.0f, 0.0f));
 		return glm::mat4(1.0f) *
 			glm::translate(glm::mat4(1.0f), Position) *
 			glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -40,6 +37,11 @@ public:
 	Ghost(glm::vec3 pos, Shader* shader);
 	Ghost(glm::vec3 pos, Shader* shader, int Momentum);
 	Ghost(glm::vec3 pos, Shader* shader, int Momentum, glm::vec3 color);
+
+	static float panicThreshold() 
+	{
+		return 10000.0f;
+	}
 	static float FastMoveSpeed()
 	{
 		return 0.03f;
@@ -51,7 +53,7 @@ public:
 	Model* GetModel();
 	void SetPosition(glm::vec3 Position);
 	void SetDeltaTime(float dT);
-	void Move(Player* player, Arena* arena);
+	void Move(Player* player, Arena* arena, Shader* shader);
 	void MoveTowardsPlayer(Player* player, Arena* arena);
 	void MoveAwayFromPlayer(Player* player, Arena* arena);
 	void SetMovespeed(float x);

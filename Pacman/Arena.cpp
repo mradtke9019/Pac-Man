@@ -1,23 +1,11 @@
 #include "Arena.h"
 void Arena::Draw()
 {
-	for (int i = 0; i < boxes.size(); i++)
+	for (int i = 0; i < lightModels.size(); i++)
 	{
-		boxes[i].GetShader()->Use();
-		boxes[i].SetModelTransform(boxes[i].GetModelTransform());
-		boxes[i].Draw();
-	}
-	for (int i = 0; i < points.size(); i++)
-	{
-		points[i].GetShader()->Use();
-		points[i].SetModelTransform(points[i].GetModelTransform());
-		points[i].Draw();
-	}
-	for (int i = 0; i < fruits.size(); i++)
-	{
-		fruits[i].GetShader()->Use();
-		fruits[i].SetModelTransform(fruits[i].GetModelTransform());
-		fruits[i].Draw();
+		lightModels[i].model->GetShader()->Use();
+		lightModels[i].model->SetModelTransform(lightModels[i].Transform);
+		lightModels[i].model->Draw();
 	}
 }
 std::vector<std::vector<bool>>* Arena::GetValidPathing()
@@ -110,16 +98,14 @@ bool Arena::Collision(glm::vec3 p1, glm::vec3 p2)
 }
 
 
-std::vector<Model>* Arena::GetPoints()
-{
-	return &points;
-};
 
-std::vector<Model>* Arena::GetFruits()
+std::vector<LightModel>* Arena::GetArenaObjects()
 {
-	return &fruits;
+	return &lightModels;
 }
-std::vector<Model>* Arena::GetBoxes()
+
+
+std::vector<glm::vec3>* Arena::GetTeleportPoints()
 {
-	return &boxes;
+	return &teleport;
 }
