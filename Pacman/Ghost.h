@@ -40,7 +40,7 @@ public:
 
 	static float panicThreshold() 
 	{
-		return 10000.0f;
+		return 5000.0f;
 	}
 	static float FastMoveSpeed()
 	{
