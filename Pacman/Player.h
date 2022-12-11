@@ -22,9 +22,6 @@ private:
 
 	glm::mat4 GetModelTransform()
 	{
-		//glm::rotate(glm::mat4(1.0f), RotateZ, glm::vec3(0.0f, 0.0f, 1.0f))*
-		//	glm::rotate(glm::mat4(1.0f), RotateY, glm::vec3(0.0f, 1.0f, 0.0f))*
-		//	glm::rotate(glm::mat4(1.0f), RotateX, glm::vec3(1.0f, 0.0f, 0.0f));
 		return glm::mat4(1.0f) * 
 			glm::translate(glm::mat4(1.0f), Position) * 
 			glm::rotate(glm::mat4(1.0f), glm::radians(yaw), glm::vec3(1.0f,0.0f,0.0f)) *
