@@ -189,11 +189,6 @@
     </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="Ghost.mtl">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
     <CopyFileToFolders Include="playerFS.txt" />
     <CopyFileToFolders Include="playerVS.txt" />
   </ItemGroup>
@@ -234,11 +229,6 @@
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="intro.wav">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
-    <CopyFileToFolders Include="mixkit-player-jumping-in-a-video-game-2043.wav">
       <FileType>Document</FileType>
     </CopyFileToFolders>
   </ItemGroup>
