@@ -11,9 +11,7 @@ private:
 	glm::mat4 View;
 
 public:
-	///
-	/// Do work
-	///
+
 	FixedCamera(){};
 	FixedCamera(glm::vec3, glm::vec3, glm::vec3);
 

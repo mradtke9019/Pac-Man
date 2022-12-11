@@ -14,24 +14,6 @@ FreeCamera::FreeCamera(glm::vec3 position)
 
 	Position = position;// glm::vec3(0.0f, 3.0f, 3.0f);
 	CalculateView();
-	//glm::vec3 cameraTranslation = glm::vec3(CameraTranslateX, CameraTranslateY, CameraTranslateZ);
-	//Position = glm::vec3(0.0f, 3.0f, 3.0f) + cameraTranslation;//glm::vec3(0.0f, 3.0f, 3.0f);
-	//Target = glm::vec3(0.0f, 0.0f, 0.0f) + cameraTranslation;
-	//
-	//// Default direction staring down z axis from positive to negative
-	//Direction = glm::vec3(0.0f, 0.0f, -1.0f);
-	//Direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-	//Direction.y = sin(glm::radians(pitch));
-	//Direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-
-	//Direction = glm::normalize(Direction);
-
-	//glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-
-	//glm::vec3 Right = glm::normalize(glm::cross(up, Direction));
-	//Up = glm::cross(Direction, Right);
-
-	//View = glm::lookAt(Position, Direction, Up);
 };
 
 void FreeCamera::CalculateDirection()

@@ -1,3 +1,6 @@
+The work in this project is my own with the appropriate references placed in the code saying if any ideas or code came from another place. All sources are referenced at the end of the report and their contribution to my project.
+
+
 Ghost Model Found Online free here:
 https://www.cgtrader.com/free-3d-models/character/fantasy-character/ghost-2e9565cc-6a1a-4a04-9265-9811c9a93764
 
