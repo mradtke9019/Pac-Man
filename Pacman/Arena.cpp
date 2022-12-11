@@ -8,6 +8,7 @@ void Arena::Draw()
 		lightModels[i].model->Draw();
 	}
 }
+
 std::vector<std::vector<bool>>* Arena::GetValidPathing()
 {
 	return &ValidPathing;
